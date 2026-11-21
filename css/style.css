@@ -99,6 +99,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .loader i{display:block;height:100%;width:0;background:var(--blue-hi);transition:width .3s}
 .loader.is-done{opacity:0}
 
+.snd{position:absolute;right:var(--pad);bottom:74px;display:flex;align-items:center;gap:10px;height:36px;padding:0 14px;border:1px solid rgba(255,255,255,.45);color:#fff;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;background:rgba(12,13,16,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .25s,border-color .25s;z-index:5}
+.snd:hover{background:rgba(12,13,16,.6);border-color:#fff}
+.snd i{display:flex;align-items:flex-end;gap:2px;height:12px}
+.snd b{display:block;width:2px;height:3px;background:currentColor;transition:height .2s}
+.snd.is-on b{animation:eq 1s ease-in-out infinite}
+.snd.is-on b:nth-child(2){animation-delay:.2s}.snd.is-on b:nth-child(3){animation-delay:.4s}.snd.is-on b:nth-child(4){animation-delay:.1s}
+.snd.is-loading{opacity:.6}
+@keyframes eq{0%,100%{height:3px}50%{height:12px}}
+
 /* ---------- Gemeinsames ---------- */
 .label{color:var(--mut-d)}
 .sec-head{padding:clamp(80px,12vw,160px) var(--pad) clamp(36px,5vw,64px);max-width:1100px}
@@ -318,6 +327,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   .meter__bar{width:70px;height:1px}
   .meter__bar i{left:0;top:-1px;bottom:auto;height:3px;width:0}
   .hero__foot span:nth-child(2){display:none}
+  .snd{bottom:12px;right:auto;left:50%;transform:translateX(-50%);height:32px;padding:0 12px}
   .values,.company,.contact{grid-template-columns:1fr}
   .system{height:240vh}
   .system__pin{grid-template-columns:1fr;grid-template-rows:auto 1fr}

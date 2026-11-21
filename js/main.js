@@ -5,31 +5,35 @@ var clamp=function(v,a,b){return Math.max(a,Math.min(b,v))};
 var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 var pad=function(n,l){n=String(n);while(n.length<l)n='0'+n;return n};
 
-/* ---------- Scroll Sequenz: 4K Fassadenfoto + in Blender gerendertes Gerüst ---------- */
-// Kein Überblenden: es wird immer genau ein gerendertes Bild gezeigt.
+/* ---------- Scroll Sequenz ---------- */
+// Alles in Blender gerendert (Cycles): Aufbau mit echter 3D-Kamerafahrt, frontale Standzeit mit Sanierung,
+// Abbau mit Rückfahrt der Kamera. Es wird immer genau ein Bild gezeigt, kein Überblenden.
 var F=window.NEUMANN_SEQ, N=F.frames, scrolly=$('#scrolly'), stage=$('.stage'), canvas=$('#seq'), ctx=canvas.getContext('2d');
 var mobile=window.matchMedia('(max-width:860px)'), dir=mobile.matches?'m':'d';
-var imgs=new Array(N), loaded=new Array(N), nLoaded=0, cur=0, target=0, needs=true;
-var plateOld=new Image(), plateNew=new Image(), platesReady=0;
-var A0=0.04, A1=0.46, B1=0.70, C1=0.94; // Aufbau, Sanierung, Abbau (Anteile der Scrollstrecke)
+var A0=0.03, A1=0.44, B1=0.62, C1=0.95; // Aufbau, Sanierung, Abbau (Anteile der Scrollstrecke)
 var phases=$$('.phases li').map(function(el){return{el:el,a:+el.dataset.a,b:+el.dataset.b,hero:el.classList.contains('is-hero')}});
 var hero=$('.hero'), meterNum=$('#meterNum'), meterBar=$('#meterBar'), meterPct=$('#meterPct'), cue=$('#scrollcue'), loader=$('#loader'), loaderBar=$('#loader i'), nav=$('#nav');
-var V='?v='+F.v;
-plateOld.onload=plateNew.onload=function(){platesReady++;needs=true;if(platesReady===2)pump()};
-plateOld.src='assets/seq/alt_'+dir+'.webp'+V; plateNew.src='assets/seq/neu_'+dir+'.webp'+V;
-
-function src(i){return 'assets/seq/'+dir+'/g_'+pad(i+1,3)+'.webp'+V}
-function order(){var seen={},out=[];[16,8,4,2,1].forEach(function(s){for(var i=0;i<N;i+=s){if(!seen[i]){seen[i]=1;out.push(i)}}});out.splice(1,0,N-1);return out}
-var queue=order(), active=0;
+var V='?v='+F.v, cur=0, target=0, needs=true;
+function set(prefix,n){return{p:prefix,len:n,img:new Array(n),ok:new Array(n),n:0}}
+var ND=F.dframes, B=set('b',N), Dn=set('d',ND), plateOld=new Image(), plateNew=new Image(), over=new Image(), statics=0;
+function order(n){var seen={},out=[0];seen[0]=1;[16,8,4,2,1].forEach(function(s){for(var i=0;i<n;i+=s){if(!seen[i]){seen[i]=1;out.push(i)}}});return out}
+var queue=order(N).map(function(i){return[B,i]}), active=0, total=N+ND+3, done=0, second=false;
+function progress(){done++;loaderBar.style.width=(done/total*100)+'%';if(done>=total)loader.classList.add('is-done')}
 function pump(){
-  while(active<6&&queue.length){(function(i){
-    active++;var im=new Image();im.decoding='async';
-    im.onload=im.onerror=function(){active--;if(im.naturalWidth&&!loaded[i]){imgs[i]=im;loaded[i]=true;nLoaded++}needs=true;
-      loaderBar.style.width=(nLoaded/N*100)+'%';if(nLoaded>=N)loader.classList.add('is-done');pump()};
-    im.src=src(i);
+  while(active<6&&queue.length){(function(job){
+    var S=job[0],i=job[1];active++;var im=new Image();im.decoding='async';
+    im.onload=im.onerror=function(){active--;if(im.naturalWidth&&!S.ok[i]){S.img[i]=im;S.ok[i]=true;S.n++}needs=true;progress();
+      if(!second&&B.n>=N*0.5){second=true;loadRest()}
+      pump()};
+    im.src='assets/seq/'+dir+'/'+S.p+'_'+pad(i+1,3)+'.webp'+V;
   })(queue.shift())}
 }
-function nearest(i){if(loaded[i])return i;for(var d=1;d<N;d++){if(i-d>=0&&loaded[i-d])return i-d;if(i+d<N&&loaded[i+d])return i+d}return -1}
+function loadRest(){
+  [plateOld,plateNew,over].forEach(function(im){im.onload=function(){statics++;needs=true;progress()}});
+  plateOld.src='assets/seq/alt_'+dir+'.webp'+V; plateNew.src='assets/seq/neu_'+dir+'.webp'+V; over.src='assets/seq/'+dir+'/g.webp'+V;
+  queue=queue.concat([ND-1].concat(order(ND).reverse()).map(function(i){return[Dn,i]}));pump();
+}
+function nearest(S,i){var L=S.len;if(S.ok[i])return i;for(var d=1;d<L;d++){if(i-d>=0&&S.ok[i-d])return i-d;if(i+d<L&&S.ok[i+d])return i+d}return -1}
 function size(){var dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(stage.clientWidth*dpr);canvas.height=Math.round(stage.clientHeight*dpr);needs=true}
 var T={s:1,dx:0,dy:0,w:0,h:0};
 function layout(iw,ih){
@@ -38,38 +42,24 @@ function layout(iw,ih){
   else{T.s=Math.max(cw/iw,ch/ih);T.dx=(cw-iw*T.s)/2;T.dy=(ch-ih*T.s)*0.62}
   T.w=iw*T.s;T.h=ih*T.s;
 }
-// Kamerafahrt: startet nah unten links bei den ersten Fußplatten, fährt beim Aufbau nach rechts oben und zoomt heraus
-function camera(fp){
-  var cw=canvas.width,ch=canvas.height,mob=mobile.matches;
-  var k=clamp(fp/(A1*0.9),0,1);k=k*k*(3-2*k);
-  var z=1+((mob?F.zoomM:F.zoom)-1)*(1-k);
-  if(fp>A1&&fp<C1)z=1+0.05*Math.sin(Math.PI*clamp((fp-A1)/(C1-A1),0,1)); // ruhiges Heranfahren während der Standzeit
-  var sx=cw/2, sy=mob?T.dy+T.h/2:ch/2;
-  var f0x=(sx-T.dx)/T.w, f0y=(sy-T.dy)/T.h;
-  var fs=mob?F.startM:F.start, fx=fs[0]+(f0x-fs[0])*k, fy=fs[1]+(f0y-fs[1])*k;
-  var W=T.w*z,H=T.h*z, dx=clamp(sx-fx*W,cw-W,0), dy=sy-fy*H;
-  dy=mob?clamp(dy,T.dy+T.h-H,T.dy):clamp(dy,ch-H,0);
-  T.dx=dx;T.dy=dy;T.w=W;T.h=H;
-}
-function state(fp){
-  if(fp<A0)return{f:-1,w:0};
-  if(fp<A1)return{f:(fp-A0)/(A1-A0)*(N-1),w:0};
-  if(fp<B1)return{f:N-1,w:clamp((fp-A1)/(B1-A1)*1.12-0.06,0,1)};
-  if(fp<C1)return{f:(1-(fp-B1)/(C1-B1))*(N-1),w:1};
-  return{f:-1,w:1};
-}
+function draw(im){layout(im.naturalWidth,im.naturalHeight);ctx.drawImage(im,T.dx,T.dy,T.w,T.h)}
 function render(){
-  if(platesReady<2)return null;
-  layout(plateOld.naturalWidth,plateOld.naturalHeight);camera(cur);
-  var st=state(cur);
-  ctx.fillStyle='#0c0d10';ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.drawImage(plateOld,T.dx,T.dy,T.w,T.h);
-  if(st.w>0){ // Sanierung von oben nach unten mit harter Kante, wie Maler auf dem Gerüst
-    var y=st.w>=1?canvas.height:T.dy+T.h*F.ground*st.w;
-    ctx.save();ctx.beginPath();ctx.rect(0,0,canvas.width,y);ctx.clip();ctx.drawImage(plateNew,T.dx,T.dy,T.w,T.h);ctx.restore();
+  var cw=canvas.width,ch=canvas.height,fp=cur;
+  ctx.fillStyle='#0c0d10';ctx.fillRect(0,0,cw,ch);
+  if(fp<A1||statics<3&&fp<B1){ // Aufbau mit Kamerafahrt
+    var bi=nearest(B,Math.round(fp<A0?0:Math.min(1,(fp-A0)/(A1-A0))*(N-1)));if(bi<0)return null;
+    draw(B.img[bi]);return{lv:bi/(N-1)*F.levels,ph:'b',i:bi};
   }
-  if(st.f>=0){var i=nearest(Math.round(st.f));if(i>=0)ctx.drawImage(imgs[i],T.dx,T.dy,T.w,T.h)}
-  return st;
+  if(fp<B1&&statics===3){ // Standzeit: Sanierung von oben nach unten mit harter Kante
+    var w=clamp((fp-A1)/(B1-A1)*1.15-0.08,0,1);
+    draw(plateOld);
+    if(w>0){var y=w>=1?ch:T.dy+T.h*F.ground*w;ctx.save();ctx.beginPath();ctx.rect(0,0,cw,y);ctx.clip();ctx.drawImage(plateNew,T.dx,T.dy,T.w,T.h);ctx.restore()}
+    ctx.drawImage(over,T.dx,T.dy,T.w,T.h);
+    return{lv:F.levels,ph:'s',i:-1};
+  }
+  var t=clamp((fp-B1)/(C1-B1),0,1), di=nearest(Dn,Math.round((1-t)*(ND-1)));
+  if(di<0){var b2=nearest(B,N-1);if(b2>=0)draw(B.img[b2]);return{lv:F.levels,ph:'s',i:-1}}
+  draw(Dn.img[di]);var bf=Math.min(N-1,di*2);return{lv:bf/(N-1)*F.levels,ph:t<1?'d':'e',i:bf};
 }
 var lastFp=-1;
 function onScroll(){
@@ -84,16 +74,17 @@ function onScroll(){
   var e=clamp((p-0.94)/0.06,0,1); // weicher Übergang in den nächsten Abschnitt
   stage.style.transform=e?'scale('+(1-e*0.05)+')':'';stage.style.borderRadius=e?(e*18)+'px':'';
   nav.classList.toggle('is-solid',r.bottom<80);
+  if(window.NeumannSound)NeumannSound.visible(r.bottom>window.innerHeight*0.3);
 }
 function tick(){
   var d=target-cur;if(Math.abs(d)>0.0004){cur+=d*(reduce?1:0.16);needs=true}else if(cur!==target){cur=target;needs=true}
   if(needs){needs=false;var st=render();
-    if(st){var lv=st.f<0?0:st.f/(N-1)*F.levels;meterNum.textContent=pad(Math.round(lv),2);
+    if(st){if(window.NeumannSound)NeumannSound.update(st.ph,st.i);var lv=st.lv;meterNum.textContent=pad(Math.round(lv),2);
       if(mobile.matches){meterBar.style.width=(lv/F.levels*100)+'%';meterBar.style.height=''}else{meterBar.style.height=(lv/F.levels*100)+'%';meterBar.style.width=''}
       meterPct.textContent=pad(Math.round(cur*100),3)+' %';}}
   requestAnimationFrame(tick);
 }
-size();onScroll();tick();
+size();onScroll();tick();pump();
 window.addEventListener('scroll',onScroll,{passive:true});
 window.addEventListener('resize',function(){size();onScroll()});
 
