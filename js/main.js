@@ -38,6 +38,19 @@ function layout(iw,ih){
   else{T.s=Math.max(cw/iw,ch/ih);T.dx=(cw-iw*T.s)/2;T.dy=(ch-ih*T.s)*0.62}
   T.w=iw*T.s;T.h=ih*T.s;
 }
+// Kamerafahrt: startet nah unten links bei den ersten Fußplatten, fährt beim Aufbau nach rechts oben und zoomt heraus
+function camera(fp){
+  var cw=canvas.width,ch=canvas.height,mob=mobile.matches;
+  var k=clamp(fp/(A1*0.9),0,1);k=k*k*(3-2*k);
+  var z=1+((mob?F.zoomM:F.zoom)-1)*(1-k);
+  if(fp>A1&&fp<C1)z=1+0.05*Math.sin(Math.PI*clamp((fp-A1)/(C1-A1),0,1)); // ruhiges Heranfahren während der Standzeit
+  var sx=cw/2, sy=mob?T.dy+T.h/2:ch/2;
+  var f0x=(sx-T.dx)/T.w, f0y=(sy-T.dy)/T.h;
+  var fs=mob?F.startM:F.start, fx=fs[0]+(f0x-fs[0])*k, fy=fs[1]+(f0y-fs[1])*k;
+  var W=T.w*z,H=T.h*z, dx=clamp(sx-fx*W,cw-W,0), dy=sy-fy*H;
+  dy=mob?clamp(dy,T.dy+T.h-H,T.dy):clamp(dy,ch-H,0);
+  T.dx=dx;T.dy=dy;T.w=W;T.h=H;
+}
 function state(fp){
   if(fp<A0)return{f:-1,w:0};
   if(fp<A1)return{f:(fp-A0)/(A1-A0)*(N-1),w:0};
@@ -47,7 +60,7 @@ function state(fp){
 }
 function render(){
   if(platesReady<2)return null;
-  layout(plateOld.naturalWidth,plateOld.naturalHeight);
+  layout(plateOld.naturalWidth,plateOld.naturalHeight);camera(cur);
   var st=state(cur);
   ctx.fillStyle='#0c0d10';ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(plateOld,T.dx,T.dy,T.w,T.h);
