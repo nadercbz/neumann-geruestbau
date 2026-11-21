@@ -12,7 +12,7 @@
 <meta property="og:image" content="assets/img/og.jpg">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/style.css?v=2">
+<link rel="stylesheet" href="css/style.css?v=4">
 <script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
 </head>
 <body>
@@ -55,10 +55,10 @@
 
     <ol class="phases" aria-hidden="true">
       <li data-a="0" data-b="0.04" class="is-hero"><b>00</b><span>Bestand</span><em>Altbau, 1902. Fünf Geschosse, Mansarddach, Erker.</em></li>
-      <li data-a="0.04" data-b="0.5"><b>01</b><span>Aufbau</span><em>Fußplatten, Stiele, Riegel. Lage für Lage verankert.</em></li>
-      <li data-a="0.5" data-b="0.76"><b>02</b><span>Standzeit</span><em>Die Fassade wird saniert. Das Gerüst trägt Maler, Stuckateure und Dachdecker.</em></li>
-      <li data-a="0.76" data-b="0.95"><b>03</b><span>Abbau</span><em>Zügig zurück, sauber abtransportiert.</em></li>
-      <li data-a="0.95" data-b="1.01"><b>04</b><span>Übergabe</span><em>Was bleibt, ist die Fassade.</em></li>
+      <li data-a="0.04" data-b="0.46"><b>01</b><span>Aufbau</span><em>Fußplatten, Stiele, Riegel. Lage für Lage verankert.</em></li>
+      <li data-a="0.46" data-b="0.70"><b>02</b><span>Standzeit</span><em>Die Fassade wird saniert. Das Gerüst trägt Maler, Stuckateure und Dachdecker.</em></li>
+      <li data-a="0.70" data-b="0.94"><b>03</b><span>Abbau</span><em>Zügig zurück, sauber abtransportiert.</em></li>
+      <li data-a="0.94" data-b="1.01"><b>04</b><span>Übergabe</span><em>Was bleibt, ist die Fassade.</em></li>
     </ol>
 
     <div class="meter" aria-hidden="true">
@@ -109,7 +109,7 @@
   <div class="values__head">
     <p class="mono label">Werte</p>
     <span class="sq" aria-hidden="true"></span>
-    <h2 class="split">Verlässlichkeit, die man von der Straße aus sieht.</h2>
+    <h2 class="split" data-speed="0.06">Verlässlichkeit, die man von der Straße aus sieht.</h2>
   </div>
   <div class="values__list" id="acc">
     <article class="acc is-open">
@@ -131,7 +131,7 @@
   </div>
   <div class="values__strip" id="coordStrip" aria-hidden="true">
     <i class="coord__h"></i><i class="coord__v"></i>
-    <div class="coord__img"><img src="assets/img/humboldthafen.webp" alt="" loading="lazy"></div>
+    <div class="coord__img"><img data-plx="img" src="assets/img/humboldthafen.webp" alt="" loading="lazy"></div>
     <span class="mono coord__x">X: <b id="cx">99</b></span>
     <span class="mono coord__y">Y: <b id="cy">141</b></span>
     <div class="values__facts">
@@ -145,7 +145,7 @@
 
 <!-- ============ LEISTUNGEN ============ -->
 <section class="services" id="leistungen">
-  <header class="sec-head">
+  <header class="sec-head" data-speed="0.05">
     <p class="mono label">Leistungen</p>
     <h2 class="split">Alles, was hoch hinaus muss.</h2>
   </header>
@@ -167,15 +167,15 @@
     <div class="tabs" id="tabs" role="tablist" aria-label="Projekte filtern"></div>
   </header>
   <div class="grid" id="grid"></div>
-  <div class="marquee" aria-hidden="true"><div class="marquee__track">
+  <div class="marquee" aria-hidden="true"><div class="marquee__shift" data-plx="h"><div class="marquee__track">
     <span>Olympiastadion</span><span>Bahnhof Ostkreuz</span><span>Zoofenster</span><span>Konzerthaus Berlin</span><span>Jüdisches Museum</span><span>Messe Berlin</span><span>Hamburger Bahnhof</span><span>Europa-Center</span><span>Bundesarchiv</span>
     <span>Olympiastadion</span><span>Bahnhof Ostkreuz</span><span>Zoofenster</span><span>Konzerthaus Berlin</span><span>Jüdisches Museum</span><span>Messe Berlin</span><span>Hamburger Bahnhof</span><span>Europa-Center</span><span>Bundesarchiv</span>
-  </div></div>
+  </div></div></div>
 </section>
 
 <!-- ============ UNTERNEHMEN ============ -->
 <section class="company" id="unternehmen">
-  <div class="company__img reveal-clip"><img loading="lazy" src="assets/img/jubilaeum.webp" alt="Gerüstportal mit rotem Teppich zum Firmenjubiläum"><span class="mono">Fig. 01 · Firmenjubiläum 2016</span></div>
+  <div class="company__img reveal-clip"><img data-plx="img" loading="lazy" src="assets/img/jubilaeum.webp" alt="Gerüstportal mit rotem Teppich zum Firmenjubiläum"><span class="mono">Fig. 01 · Firmenjubiläum 2016</span></div>
   <div class="company__txt">
     <p class="mono label">Unternehmen</p>
     <h2 class="split">Seit 1990 in Berlin. Von Marzahn aus in die ganze Stadt.</h2>
@@ -195,7 +195,7 @@
 
 <!-- ============ KARRIERE ============ -->
 <section class="careers" id="karriere">
-  <header class="sec-head">
+  <header class="sec-head" data-speed="0.05">
     <p class="mono label">Karriere</p>
     <h2 class="split">Arbeit mit Aussicht.</h2>
   </header>
@@ -234,7 +234,7 @@
 </main>
 
 <footer class="foot">
-  <div class="foot__big"><span class="logo"></span></div>
+  <div class="foot__big"><span class="logo" data-speed="-0.12"></span></div>
   <div class="foot__row mono">
     <span>© <span id="year">2026</span> Neumann Gerüstbau GmbH</span>
     <nav aria-label="Fußzeile"><a href="#leistungen">Leistungen</a><a href="#referenzen">Projekte</a><a href="#unternehmen">Unternehmen</a><a href="#karriere">Karriere</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
@@ -245,8 +245,9 @@
 <div class="lightbox" id="lightbox" hidden><button aria-label="Schließen">×</button><figure><img alt=""><figcaption class="mono"></figcaption></figure></div>
 
 <script src="js/data.js"></script>
-<script src="js/frames.js?v=2"></script>
-<script src="js/main.js?v=2"></script>
-<script type="module" src="js/scene3d.js?v=2"></script>
+<script src="js/frames.js?v=4"></script>
+<script src="assets/vendor/lenis.min.js"></script>
+<script src="js/main.js?v=4"></script>
+<script type="module" src="js/scene3d.js?v=4"></script>
 </body>
 </html>
