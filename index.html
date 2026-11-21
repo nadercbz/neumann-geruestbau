@@ -12,7 +12,7 @@
 <meta property="og:image" content="assets/img/og.jpg">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/style.css?v=9">
+<link rel="stylesheet" href="css/style.css?v=10">
 <script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
 </head>
 <body>
@@ -22,12 +22,13 @@
 <header class="nav" id="nav">
   <a class="nav__logo" href="#top" aria-label="Neumann Gerüstbau GmbH, zur Startseite"><span class="logo"></span></a>
   <nav class="nav__links" id="menu" aria-label="Hauptmenü">
-    <a href="#system"><i>01</i>System</a>
-    <a href="#leistungen"><i>02</i>Leistungen</a>
-    <a href="#referenzen"><i>03</i>Projekte</a>
-    <a href="#unternehmen"><i>04</i>Unternehmen</a>
-    <a href="#karriere"><i>05</i>Karriere</a>
-    <a class="nav__menu-cta" href="#kontakt"><i>06</i>Kontakt</a>
+    <a href="#film"><i>01</i>Film</a>
+    <a href="#system"><i>02</i>System</a>
+    <a href="#leistungen"><i>03</i>Leistungen</a>
+    <a href="#referenzen"><i>04</i>Projekte</a>
+    <a href="#unternehmen"><i>05</i>Unternehmen</a>
+    <a href="#karriere"><i>06</i>Karriere</a>
+    <a class="nav__menu-cta" href="#kontakt"><i>07</i>Kontakt</a>
   </nav>
   <div class="nav__right">
     <button class="nav__menu" id="burger" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menu"><span>Menü</span><b><i></i><i></i></b></button>
@@ -75,6 +76,23 @@
     </div>
     <button class="snd" id="snd" type="button" aria-pressed="false" aria-label="Baustellen-Geräusche ein- oder ausschalten"><i><b></b><b></b><b></b><b></b></i><span>Ton aus</span></button>
     <div class="loader" id="loader"><i></i></div>
+  </div>
+</section>
+
+<!-- ============ IMAGEFILM ============ -->
+<section class="film" id="film" aria-label="Imagefilm Neumann Gerüstbau">
+  <div class="film__head">
+    <p class="mono label">Imagefilm · 45 Sekunden</p>
+    <h2 class="film__title split">Lage für Lage. Seit 1990.</h2>
+  </div>
+  <div class="film__frame" id="filmFrame">
+    <video id="filmVideo" preload="metadata" playsinline poster="assets/film/poster.jpg?v=2">
+      <source src="assets/film/neumann_imagefilm.mp4" type="video/mp4">
+    </video>
+    <button class="film__play" id="filmPlay" type="button" aria-label="Imagefilm abspielen">
+      <span class="film__btn"><i></i></span>
+      <span class="mono">Film abspielen · mit Ton</span>
+    </button>
   </div>
 </section>
 
@@ -246,10 +264,10 @@
 <div class="lightbox" id="lightbox" hidden><button aria-label="Schließen">×</button><figure><img alt=""><figcaption class="mono"></figcaption></figure></div>
 
 <script src="js/data.js"></script>
-<script src="js/frames.js?v=9"></script>
+<script src="js/frames.js?v=10"></script>
 <script src="assets/vendor/lenis.min.js"></script>
-<script src="js/main.js?v=9"></script>
-<script src="js/sound.js?v=9"></script>
-<script type="module" src="js/scene3d.js?v=9"></script>
+<script src="js/main.js?v=10"></script>
+<script src="js/sound.js?v=10"></script>
+<script type="module" src="js/scene3d.js?v=10"></script>
 </body>
 </html>

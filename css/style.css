@@ -123,6 +123,20 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .arr::before{content:"";position:absolute;right:4px;top:4px;width:11px;height:11px;border-top:1px solid currentColor;border-right:1px solid currentColor}
 .arr::after{content:"";position:absolute;right:4px;top:4px;width:17px;height:1px;background:currentColor;transform-origin:right;transform:rotate(-45deg)}
 
+/* ---------- Imagefilm ---------- */
+.film{position:relative;background:var(--ink);padding:clamp(70px,9vw,120px) 0 clamp(60px,7vw,100px)}
+.film__head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding:0 var(--pad) clamp(24px,3vw,40px)}
+.film__title{font-weight:400;font-size:clamp(34px,4.4vw,68px);letter-spacing:-.035em;line-height:1.02}
+.film__frame{position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden;border-top:1px solid var(--line-d);border-bottom:1px solid var(--line-d)}
+.film__frame video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.film__play{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#fff;background:linear-gradient(180deg,rgba(8,9,12,.15),rgba(8,9,12,.35));transition:opacity .4s}
+.film__btn{display:grid;place-items:center;width:clamp(84px,9vw,128px);aspect-ratio:1;border-radius:50%;background:#fff;transition:transform .35s var(--ease),background .3s}
+.film__btn i{display:block;width:0;height:0;border-style:solid;border-width:16px 0 16px 26px;border-color:transparent transparent transparent var(--blue);margin-left:6px}
+.film__play:hover .film__btn{transform:scale(1.08)}
+.film__play .mono{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.film.is-playing .film__play{opacity:0;pointer-events:none}
+@media (max-width:860px){.film__btn i{border-width:12px 0 12px 20px}}
+
 /* ---------- System (Drahtmodell) ---------- */
 .system{position:relative;height:260vh;border-top:1px solid var(--line-d);background:#0b0c0f}
 .system__pin{position:sticky;top:0;height:100vh;height:100svh;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);overflow:hidden}

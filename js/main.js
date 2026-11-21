@@ -219,4 +219,17 @@ function parallax(){
   }
 }
 if(!reduce){window.addEventListener('scroll',function(){requestAnimationFrame(parallax)},{passive:true});parallax()}
+
+/* ---------- Imagefilm: volle Breite, Start mit Ton per Klick ---------- */
+var film=$('#film'),fv=$('#filmVideo'),fp=$('#filmPlay');
+if(film&&fv&&fp){
+  fp.addEventListener('click',function(){
+    fv.controls=true;fv.muted=false;var pr=fv.play();film.classList.add('is-playing');
+    if(pr&&pr.catch)pr.catch(function(){film.classList.remove('is-playing')});
+  });
+  fv.addEventListener('ended',function(){film.classList.remove('is-playing');fv.controls=false;fv.currentTime=0;fv.load()});
+  if('IntersectionObserver' in window){ // läuft der Film und man scrollt weg, pausiert er
+    new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting&&!fv.paused)fv.pause()})},{threshold:0.2}).observe(film);
+  }
+}
 })();
