@@ -1,1 +1,1 @@
-window.NEUMANN_FRAMES={count:121,w:1440,h:810};
+window.NEUMANN_FRAMES={count:160,w:1680,h:945,v:2};
