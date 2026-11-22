@@ -2,7 +2,6 @@
 // Alle Gerüste werden aus echten Bauteilmaßen gebaut (Feld 2,57 m, Lage 2,0 m, Rohr 48,3 mm, Belagbreite 0,73 m).
 import * as THREE from 'three';
 import { GLTFLoader } from '../assets/vendor/jsm/loaders/GLTFLoader.js';
-import { Sky } from '../assets/vendor/jsm/objects/Sky.js';
 import { MeshoptDecoder } from '../assets/vendor/jsm/meshopt_decoder.module.js';
 
 const BW = 2.57, LH = 2.0, DEP = 0.73, GAP = 0.3, R48 = 0.0242;
@@ -38,22 +37,22 @@ const PARTS = {
 const TYPES = [
   { id: 'fassade', name: 'Fassadengerüst', kurz: 'Für Putz, Anstrich, Dämmung und Fenster.',
     text: 'Das klassische Arbeits- und Schutzgerüst vor der Fassade. Lage für Lage aufgebaut und in der Wand verankert. Typisch für Sanierung, Malerarbeiten und Wärmedämmung.',
-    facts: [['Lastklasse', 'typisch 3 bis 4'], ['Feldlänge', '2,57 m'], ['Höhe hier', '14 m, 7 Lagen']], cam: [-18, 8, -33, 1.5, 8.2, 0] },
+    facts: [['Lastklasse', 'typisch 3 bis 4'], ['Feldlänge', '2,57 m'], ['Höhe hier', '14 m, 7 Lagen']], cam: [19, 8.5, -11.6, -1.5, 8.6, 0] },
   { id: 'roll', name: 'Rollgerüst', kurz: 'Schnell versetzbar für kurze Arbeiten.',
     text: 'Fahrbarer Turm auf feststellbaren Rollen mit Auslegern gegen Kippen. Ideal für Innenausbau, Leuchten, Decken und kleine Arbeiten an der Fassade.',
-    facts: [['Lastklasse', 'typisch 2 bis 3'], ['Grundfläche', '2,0 × 1,35 m'], ['Höhe hier', '8 m']], cam: [-14, 8, -23, -3, 5, -3.5] },
+    facts: [['Lastklasse', 'typisch 2 bis 3'], ['Grundfläche', '2,0 × 1,35 m'], ['Höhe hier', '8 m']], cam: [7, 4.5, -11.6, -3, 4.4, -3.5] },
   { id: 'haenge', name: 'Hängegerüst', kurz: 'Wo kein tragfähiger Boden ist.',
     text: 'Die Arbeitsbühne hängt an Kragträgern vom Dach oder von einem Bauwerk. Für Brücken, Vordächer, Höfe und Fassaden über Glasdächern oder Verkehrsflächen.',
-    facts: [['Lastklasse', 'typisch 2 bis 3'], ['Abhängung', 'Zugstangen'], ['Bühne hier', '3 Felder']], cam: [11, 13, -27, 0, 11.5, 0] },
+    facts: [['Lastklasse', 'typisch 2 bis 3'], ['Abhängung', 'Zugstangen'], ['Bühne hier', '3 Felder']], cam: [14, 10, -11.6, 0, 11.8, 0] },
   { id: 'raum', name: 'Raumgerüst', kurz: 'Eine ganze Arbeitsebene unter der Decke.',
     text: 'Flächiges Gerüst in Hallen, Kirchen, Treppenhäusern und unter Decken. Oben entsteht ein durchgehender Boden, auf dem frei gearbeitet werden kann.',
-    facts: [['Lastklasse', 'typisch 3 bis 6'], ['Raster', '2,57 × 2,57 m'], ['Arbeitshöhe', '8 m']], cam: [16, 9, -20, 0, 4.5, 4] },
+    facts: [['Lastklasse', 'typisch 3 bis 6'], ['Raster', '2,57 × 2,57 m'], ['Arbeitshöhe', '8 m']], cam: [20, 9, -11.6, 0, 4.5, 4] },
   { id: 'treppe', name: 'Treppenturm', kurz: 'Sicherer Aufstieg für viele Personen.',
     text: 'Treppenlauf mit Podesten in einem eigenen Gerüstturm. Ersetzt Leitern, wenn viele Menschen oder Material sicher nach oben müssen.',
-    facts: [['Laufbreite', 'ca. 0,6 m'], ['Podest', 'jede Lage'], ['Höhe hier', '14 m']], cam: [-30, 11, -22, -8, 8, 0] },
+    facts: [['Laufbreite', 'ca. 0,6 m'], ['Podest', 'jede Lage'], ['Höhe hier', '14 m']], cam: [8, 7, -11.6, -9.6, 7.5, -0.8] },
   { id: 'dach', name: 'Wetterschutzdach', kurz: 'Arbeiten bei jedem Wetter.',
     text: 'Leichte Fachwerkträger überspannen das ganze Gebäude, darauf liegt eine Plane. Für Dachsanierungen und Rohbau, damit Regen und Schnee draußen bleiben.',
-    facts: [['Spannweite hier', '14,4 m'], ['Eindeckung', 'Plane'], ['Stützenfrei', 'über dem Dach']], cam: [-22, 20, -24, 0, 12, 5.5] },
+    facts: [['Spannweite hier', '14,4 m'], ['Eindeckung', 'Plane'], ['Stützenfrei', 'über dem Dach']], cam: [21, 16, -11.6, 0, 13.5, 5.5] },
 ];
 
 /* ---------- Grundgerüst der Szene ---------- */
@@ -66,27 +65,26 @@ renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadow
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 4000);
 
-/* ---------- Himmel und Sonne: tiefe Nachmittagssonne von links vorne ---------- */
-const SUN_DIR = new THREE.Vector3(-0.86, 0.34, -0.38).normalize();   // flaches Streiflicht von links: Stuck und Laibungen werfen Schatten
-const sky = new Sky(); sky.scale.setScalar(3000); scene.add(sky);
-Object.assign(sky.material.uniforms.turbidity, { value: 4.5 }); sky.material.uniforms.rayleigh.value = 1.6;
-sky.material.uniforms.mieCoefficient.value = 0.004; sky.material.uniforms.mieDirectionalG.value = 0.82;
-sky.material.uniforms.sunPosition.value.copy(SUN_DIR);
-scene.fog = new THREE.Fog('#c9d6e4', 70, 260);
+/* ---------- Himmel mit Wolken (Poly Haven kloppenheim_06_puresky, CC0) und Sonne passend zum Panorama ---------- */
+// Das Panorama ist so gedreht, dass die tiefe Nachmittagssonne flach von links über die Fassade streicht.
+const SUN_DIR = new THREE.Vector3(-0.884, 0.423, -0.204).normalize();
+const HAZE = new THREE.Color('#b7c3d0');
+scene.background = HAZE.clone(); scene.fog = new THREE.Fog(HAZE, 110, 900);
 const pmrem = new THREE.PMREMGenerator(renderer);
-(() => { const ss = new THREE.Scene(); const s2 = new Sky(); s2.scale.setScalar(1000); s2.material.uniforms.sunPosition.value.copy(SUN_DIR);
-  s2.material.uniforms.turbidity.value = 4.5; s2.material.uniforms.rayleigh.value = 1.6; ss.add(s2);
-  scene.environment = pmrem.fromScene(ss, 0).texture; })();
-scene.environmentIntensity = 0.42;
-renderer.toneMappingExposure = 0.58;
-
-const sun = new THREE.DirectionalLight('#ffcf98', 4.6); sun.position.copy(SUN_DIR).multiplyScalar(60).add(new THREE.Vector3(0, 0, 4));
-sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.025;
-Object.assign(sun.shadow.camera, { left: -34, right: 34, top: 34, bottom: -24, near: 1, far: 140 });
-scene.add(sun, sun.target); sun.target.position.set(0, 4, 2);
-scene.add(new THREE.HemisphereLight('#b7cdf2', '#4a3c2c', 0.3));
-
 const loader = new THREE.TextureLoader();
+loader.load('assets/konfig/himmel.webp?v=1', t => {
+  t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace;
+  scene.background = t; scene.backgroundIntensity = 1.55; scene.environment = pmrem.fromEquirectangular(t).texture; needs = true;
+});
+scene.environmentIntensity = 0.75;
+renderer.toneMappingExposure = 0.62;
+const sun = new THREE.DirectionalLight('#ffd6a6', 4.4);
+sun.position.copy(SUN_DIR).multiplyScalar(70).add(new THREE.Vector3(0, 0, 4));
+sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.00025; sun.shadow.normalBias = 0.03;
+Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -30, near: 1, far: 180 });
+scene.add(sun, sun.target); sun.target.position.set(0, 4, 2);
+scene.add(new THREE.HemisphereLight('#c3d4ee', '#5a4a38', 0.25));
+
 function tex(url, rx, ry, srgb = true) {
   const t = loader.load(url, () => { needs = true; });
   t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry); t.anisotropy = 8;
@@ -94,113 +92,85 @@ function tex(url, rx, ry, srgb = true) {
   return t;
 }
 
-/* ---------- Straße, Gehwege, Rasen ---------- */
-function slab(w, d, mat, x, y, z, h = 0.02) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y - h / 2, z); m.receiveShadow = true; scene.add(m); return m; }
-const M = {
-  rasen: new THREE.MeshStandardMaterial({ map: tex('assets/konfig/rasen.webp', 70, 70), roughness: 1, color: '#9fb07a' }),
-  pflaster: new THREE.MeshStandardMaterial({ map: tex('assets/konfig/pflaster.webp', 60, 6), roughness: 0.95, color: '#c9c3b8' }),
-  hof: new THREE.MeshStandardMaterial({ map: tex('assets/konfig/pflaster.webp', 12, 10), roughness: 0.95, color: '#b9b3a8' }),
-  asphalt: new THREE.MeshStandardMaterial({ map: tex('assets/konfig/asphalt.webp', 40, 3.2), roughness: 0.92, color: '#7d7d80' }),
-  bord: new THREE.MeshStandardMaterial({ map: tex('assets/konfig/bord.webp', 60, 0.2), roughness: 0.8, color: '#cfcfcf' }),
-  linie: new THREE.MeshStandardMaterial({ color: '#e9e7df', roughness: 0.6 }),
-};
-const ground = new THREE.Mesh(new THREE.CircleGeometry(220, 64), M.rasen); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.03; ground.receiveShadow = true; scene.add(ground);
-slab(160, 5.3, M.pflaster, 0, 0.0, -2.65, 0.12);            // Gehweg vor dem Haus
-slab(160, 0.3, M.bord, 0, 0.02, -5.45, 0.16);                 // Bordstein
-slab(160, 9.0, M.asphalt, 0, -0.12, -10.1, 0.02);               // Fahrbahn
-slab(160, 0.3, M.bord, 0, 0.02, -14.75, 0.16);
-slab(160, 4.5, M.pflaster, 0, 0.0, -17.15, 0.12);           // Gehweg gegenüber
-slab(16.6, 11.4, M.hof, 0, 0.005, 5.5, 0.02);                 // Fläche unter dem Haus und der Halle
-for (let x = -78; x < 78; x += 6) slab(3, 0.14, M.linie, x, -0.112, -10.1, 0.005);   // Mittellinie
-for (const z of [-5.95, -14.25]) slab(160, 0.12, M.linie, 0, -0.112, z, 0.005);      // Randlinien
-// Hecken an den Grundstücksgrenzen
-const heckeMat = new THREE.MeshStandardMaterial({ color: '#2f4a1c', roughness: 0.95 });
-(() => { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
-  for (let i = 0; i < 2600; i++) { const v = 30 + Math.random() * 60; g.fillStyle = `rgb(${v * 0.55},${v * 1.1},${v * 0.35})`; g.beginPath(); g.arc(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 4, 0, 7); g.fill(); }
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(6, 1); heckeMat.map = t; heckeMat.color.set('#ffffff'); heckeMat.bumpMap = t; heckeMat.bumpScale = 3; })();
-for (const [x, z, w, d] of [[-14.5, 6, 0.9, 14], [14.5, 6, 0.9, 14], [-24, 13.2, 20, 0.9], [24, 13.2, 20, 0.9]]) {
-  const h = new THREE.Mesh(new THREE.BoxGeometry(w, 1.5, d), heckeMat); h.position.set(x, 0.75, z); h.castShadow = h.receiveShadow = true; scene.add(h);
-}
-
-/* ---------- Nachbarhäuser als ruhige Kulisse ---------- */
-(() => {
-  const cols = ['#d9c6a5', '#c9a58c', '#e3d7c0', '#b9c2b0', '#d8b9a0'];
-  const rows = [[-27, 15, 17.5], [-43.5, 16, 16], [27, 15, 18], [43, 15, 16.2], [-60, 16, 17], [60, 16, 15.5]];
-  rows.forEach(([x, w, h], i) => {
-    const g = new THREE.Group(); scene.add(g);
-    const wall = new THREE.MeshStandardMaterial({ map: tex('assets/konfig/fassade.webp', w / 6.114, h / 7.6), color: cols[i % cols.length], roughness: 0.9 });
-    const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, 12), [wall, wall, new THREE.MeshStandardMaterial({ color: '#4a4c52', roughness: 0.85 }), wall, wall, wall]);
-    b.position.set(x, h / 2, 6); b.castShadow = b.receiveShadow = true; g.add(b);
-    const r = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 6.2, 3.2, 4, 1), new THREE.MeshStandardMaterial({ map: tex('assets/konfig/dach.webp', 4, 1), color: '#a0623f', roughness: 0.8 }));
-    r.rotation.y = Math.PI / 4; r.scale.set(w / 8.6, 1, 12 / 8.6); r.position.set(x, h + 1.6, 6); r.castShadow = true; g.add(r);
-  });
-})();
-
-/* ---------- Bäume (Poly Haven, CC0) und Verkehr (eigene Modelle) ---------- */
+/* ---------- Umgebung aus Blender: Straße, Park, Bäume (strasse_park.glb) und Häuser der Nachbarschaft (gebaeude.glb) ---------- */
 const gltf = new GLTFLoader(); gltf.setMeshoptDecoder(MeshoptDecoder);
-const TREES = [[-14.5, -4.3, 1.0], [14.5, -4.3, 0.95], [-21, -4.2, 1.05], [21.5, -4.2, 1.0], [-31, -4.2, 0.9], [31, -4.2, 1.1], [-40, -4.2, 1.0], [40, -4.2, 0.95],
-  [26, -17.6, 1.0], [36, -17.6, 1.1], [-30, -17.6, 0.95], [46, -17.6, 1.0], [-40, -17.6, 1.05],
-  [-18, 9, 1.25], [19, 10, 1.15], [-22, 20, 1.3], [6, 21, 1.2], [-6, 24, 1.35], [24, 22, 1.2], [-11, 17, 1.1]];
-// Bäume: Stamm und Äste als Rohre, Krone aus vielen Blattbüscheln (Instanzen, eine Zeichnung für alle Bäume)
-function leafTex() {
-  const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d'); let seed = 7;
-  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  for (let i = 0; i < 170; i++) {
-    const x = 60 + rnd() * 392, y = 60 + rnd() * 392, r = 18 + rnd() * 16, a = rnd() * 6.28, l = 0.42 + rnd() * 0.45;
-    g.save(); g.translate(x, y); g.rotate(a);
-    const gr = g.createLinearGradient(-r, 0, r, 0); gr.addColorStop(0, `hsl(${92 + rnd() * 22},${28 + rnd() * 16}%,${12 + l * 16}%)`); gr.addColorStop(1, `hsl(${84 + rnd() * 22},${32 + rnd() * 16}%,${20 + l * 18}%)`);
-    g.fillStyle = gr; g.beginPath(); g.ellipse(0, 0, r, r * 0.48, 0, 0, 7); g.fill();
-    g.strokeStyle = 'rgba(230,240,190,.25)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(-r * 0.9, 0); g.lineTo(r * 0.9, 0); g.stroke(); g.restore();
-  }
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
-}
-(function buildTrees() {
-  const lt = leafTex();
-  const leafMat = new THREE.MeshStandardMaterial({ map: lt, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.85, transparent: false });
-  const cards = []; const trunks = []; let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  TREES.forEach(([x, z, s]) => {
-    const H = 9.5 * s, cy = H * 0.66, rx = 3.3 * s, ry = 2.9 * s;
-    trunks.push([V(x, 0, z), V(x + (rnd() - 0.5) * 0.4, H * 0.55, z + (rnd() - 0.5) * 0.4), 0.2 * s]);
-    for (let b = 0; b < 5; b++) { const a = rnd() * 6.28, h0 = H * (0.38 + rnd() * 0.18); trunks.push([V(x, h0, z), V(x + Math.cos(a) * rx * 0.7, cy + (rnd() - 0.2) * ry * 0.6, z + Math.sin(a) * rx * 0.7), 0.07 * s]); }
-    const n = Math.round(520 * s * s);
-    for (let i = 0; i < n; i++) {
-      let u, v, w; do { u = rnd() * 2 - 1; v = rnd() * 2 - 1; w = rnd() * 2 - 1; } while (u * u + v * v + w * w > 1);
-      const shell = 0.55 + 0.45 * Math.cbrt(rnd());
-      cards.push({ p: V(x + u * rx * shell, cy + v * ry * shell, z + w * rx * shell), r: new THREE.Euler(rnd() * 6.28, rnd() * 6.28, rnd() * 6.28), s: 0.9 + rnd() * 0.8, k: (0.5 + rnd() * 0.35) * (0.7 + 0.45 * shell) });
+const ground = new THREE.Mesh(new THREE.CircleGeometry(900, 48), new THREE.MeshStandardMaterial({ color: '#7d8a6e', roughness: 1 }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -0.2; ground.receiveShadow = true; scene.add(ground);   // Rückfall unter allem
+function prepEnv(root) {
+  root.updateMatrixWorld(true);
+  root.traverse(o => {
+    if (!o.isMesh) return;
+    if (o.isInstancedMesh && /Baum|Busch|Laterne|Poller|Fahrrad/i.test(o.name + ' ' + (o.parent ? o.parent.name : ''))) {
+      // freie Sicht auf das Neumann Haus: Straßenbäume und Möbel direkt vor dem Gerüst ausblenden
+      const m = new THREE.Matrix4(), p = new THREE.Vector3(), zero = new THREE.Matrix4().makeScale(0, 0, 0); let hid = 0;
+      for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m); p.setFromMatrixPosition(m).applyMatrix4(o.matrixWorld);
+        if (p.z > -6.2 && p.z < 0.6 && p.x > -21 && p.x < 23 && /Baum/i.test(o.name + (o.parent ? o.parent.name : ''))) { o.setMatrixAt(i, zero); hid++; } }
+      if (hid) o.instanceMatrix.needsUpdate = true;
     }
+    const flat = /Gehweg|Fahrbahn|Markierung|Bordstein|Rinne|Rasen|Wege|Beete|Boden|Strasse|Kanaldeckel|Baumscheiben|Hof_Garten|Hinterhoefe/i.test(o.name);
+    o.receiveShadow = true; o.castShadow = !flat;
+    if (/Markierung|Flicken|Kanaldeckel/i.test(o.name)) {   // gegen Flimmern auf der Fahrbahn
+      o.material = o.material.clone(); Object.assign(o.material, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    }
+    (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => {
+      if (m.map) m.map.anisotropy = 8;
+      if (m.aoMap) m.aoMapIntensity = 0.9;
+      if (m.alphaTest > 0) {   // nur Blattkarten (alphaMode MASK); Schaufenster (BLEND) bleiben durchsichtig
+        m.alphaTest = Math.max(m.alphaTest, 0.5); m.side = THREE.DoubleSide;
+        // Blattkarten: Rückseiten nicht abdunkeln (Normale nicht umdrehen), Krone wirkt sonst von unten schwarz
+        if (!m.userData.leafFix) { m.userData.leafFix = 1; m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_begin>', THREE.ShaderChunk.normal_fragment_begin.replace(/normal \*= faceDirection;/g, '').replace(/bitangent = bitangent \* faceDirection;|tangent = tangent \* faceDirection;/g, '')); }; m.needsUpdate = true; }
+        o.customDepthMaterial = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: m.map, alphaTest: 0.5 });
+      }
+    });
   });
-  const im = new THREE.InstancedMesh(new THREE.PlaneGeometry(1.1, 1.1), leafMat, cards.length); const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), c = new THREE.Color();
-  cards.forEach((cd, i) => { q.setFromEuler(cd.r); m4.compose(cd.p, q, V(cd.s, cd.s, cd.s)); im.setMatrixAt(i, m4); c.setRGB(cd.k * 0.95, cd.k, cd.k * 0.8); im.setColorAt(i, c); });
-  im.castShadow = true; im.receiveShadow = true;
-  im.customDepthMaterial = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: lt, alphaTest: 0.5 });
-  scene.add(im);
-  const bark = new THREE.MeshStandardMaterial({ map: tex('assets/konfig/rinde.webp', 1, 3), color: '#8a7a68', roughness: 0.95 });
-  const tm = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.7, 1, 1, 8), bark, trunks.length);
-  trunks.forEach(([a, b, r], i) => { const d = b.clone().sub(a), l = d.length(); q.setFromUnitVectors(V(0, 1, 0), d.normalize()); m4.compose(a.clone().add(b).multiplyScalar(0.5), q, V(r, l, r)); tm.setMatrixAt(i, m4); });
-  tm.castShadow = true; tm.receiveShadow = true; scene.add(tm);
-  // Baumscheiben auf dem Gehweg
-  const pit = new THREE.MeshStandardMaterial({ color: '#4b3a2a', roughness: 1 });
-  TREES.filter(t => t[1] < 0).forEach(([x, z]) => slab(1.6, 1.6, pit, x, 0.004, z, 0.01));
-})();
+  return root;
+}
+for (const f of ['strasse_park', 'gebaeude']) gltf.load(`assets/konfig/${f}.glb?v=3`, g => { scene.add(prepEnv(g.scene)); needs = true; }, undefined, () => {});
+
+/* ---------- Berliner Skyline am Horizont (Modelle aus Earth 3D) ---------- */
+const SKY_LINE = [ // Name, Höhe in m, x, z (three.js), Drehung
+  ['fernsehturm', 368, 520, 1750, 0], ['hotel_alexanderplatz', 125, 395, 1820, 0.5], ['haus_des_lehrers', 54, 610, 1640, 0.2],
+  ['berolinahaus', 32, 455, 1690, 0.5], ['alexanderhaus', 32, 430, 1640, 0.5], ['kaufhaus_alexanderplatz', 38, 360, 1720, 0.4], ['haus_des_reisens', 70, 660, 1730, 0.1],
+];
+const hazeMix = (m, k) => { m = m.clone(); if (m.color) m.color.lerp(HAZE, k); m.fog = false; m.roughness = 1; m.metalness = 0; return m; };
+SKY_LINE.forEach(([n, h, x, z, r]) => gltf.load(`assets/konfig/skyline/${n}.glb`, g => {
+  const o = g.scene, bb = new THREE.Box3().setFromObject(o), k = h / Math.max(0.01, bb.max.y - bb.min.y);
+  o.scale.setScalar(k); o.position.set(x, -bb.min.y * k, z); o.rotation.y = r;
+  o.traverse(c => { if (c.isMesh) { c.material = hazeMix(c.material, 0.52); c.castShadow = c.receiveShadow = false; } });
+  scene.add(o); needs = true;
+}));
+
+/* ---------- Verkehr: volle Automodelle, zwei Fahrspuren mit festem Abstand, Parkstreifen gegenüber ---------- */
 const CARS = ['kompakt', 'kombi', 'limousine', 'suv', 'taxi', 'transporter'];
-const PAINT = ['#16181c', '#e8e8e6', '#7d8288', '#2b3a5c', '#7a1d18', '#3c4a3a', '#c9c2b2', '#101113'];
-const traffic = [];
-let carProtos = {};
-Promise.all(CARS.concat(['bus']).map(n => new Promise(res => gltf.load(`assets/konfig/autos/${n}.glb`, g => { carProtos[n] = g.scene; res(); }, undefined, res)))).then(() => {
-  const mk = (n, i) => {
-    const p = carProtos[n] || carProtos.kompakt; const c = p.clone(true);
-    c.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; if (/lack/i.test(o.material.name) && n !== 'taxi' && n !== 'bus') { o.material = o.material.clone(); o.material.color.set(PAINT[i % PAINT.length]); o.material.metalness = 0.6; o.material.roughness = 0.25; } } });
-    const bb = new THREE.Box3().setFromObject(c), sz = bb.getSize(new THREE.Vector3());
-    const wrap = new THREE.Group(); c.position.y -= bb.min.y; if (sz.z > sz.x) c.rotation.y = Math.PI / 2; wrap.add(c); scene.add(wrap); return wrap;
-  };
-  // geparkt am gegenüberliegenden Rand, fahrend auf zwei Spuren
-  let i = 0; for (let x = -54; x < 56; x += 5.8 + (i % 3) * 0.6) { if (Math.abs(x) < 3) { x += 2; } const w = mk(CARS[i % CARS.length], i + 3); w.position.set(x, -0.12, -13.3); w.rotation.y = (i % 2) * Math.PI; i++; }
-  for (let k = 0; k < 9; k++) { const dir = k % 2 ? -1 : 1, n = k === 4 ? 'bus' : CARS[(k * 2) % CARS.length]; const w = mk(n, k);
-    traffic.push({ w, dir, z: dir > 0 ? -8.0 : -11.9, x: -70 + k * 17 + Math.random() * 6, v: (n === 'bus' ? 7 : 9.5) + Math.random() * 2.5 }); }
+const PAINT = ['#16181c', '#e9e9e7', '#7d8288', '#22314f', '#6d1a16', '#3a463a', '#c8c0ae', '#0e0f11', '#a9adb2'];
+const ROAD_Y = -0.12, LANE = [{ z: -7.3, dir: 1, v: 10.5 }, { z: -10.7, dir: -1, v: 9.0 }], PARK_Z = -13.5;
+const traffic = [], carProtos = {};
+function carClone(n, i) {
+  const p = carProtos[n]; if (!p) return null; const c = p.clone(true);
+  c.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true;
+    if (/lack/i.test(o.material.name) && n !== 'taxi') { o.material = o.material.clone(); o.material.color.set(PAINT[i % PAINT.length]); } } });
+  // Fahrtrichtung aus den Rädern bestimmen: von hinten (rad_h*) nach vorne (rad_v*)
+  c.updateMatrixWorld(true); const v = new THREE.Vector3(), h = new THREE.Vector3(); let nv = 0, nh = 0;
+  const ctr = o => new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3());   // Mitte der Radgeometrie (Knoten liegen teils alle im Ursprung)
+  c.traverse(o => { if (/^rad_v[lr]$/i.test(o.name)) { v.add(ctr(o)); nv++; } if (/^rad_h[lr]$/i.test(o.name)) { h.add(ctr(o)); nh++; } });
+  const wrap = new THREE.Group(), mid = new THREE.Group(); mid.add(c); wrap.add(mid);
+  if (nv && nh) { const f = v.divideScalar(nv).sub(h.divideScalar(nh)); mid.rotation.y = Math.atan2(f.z, f.x); }   // Front zeigt danach nach +x
+  const bb = new THREE.Box3().setFromObject(wrap); c.position.y -= bb.min.y;
+  scene.add(wrap); return wrap;
+}
+Promise.all(CARS.concat(['bus']).map(n => new Promise(res => gltf.load(`assets/konfig/autos/${n}.glb?v=2`, g => { carProtos[n] = g.scene; res(); }, undefined, res)))).then(() => {
+  let i = 0;
+  const LITE = window.matchMedia('(max-width: 860px)').matches;   // Handy: weniger Autos
+  for (let x = -46; x < 48; x += LITE ? 12.4 : 6.2) { if (R01(i) < 0.18) { i++; continue; } const w = carClone(CARS[i % CARS.length], i + 2); if (w) { w.position.set(x, ROAD_Y, PARK_Z); w.rotation.y = (i % 3 === 0) ? Math.PI : 0; } i++; }
+  LANE.forEach((ln, li) => { const n = LITE ? (li ? 3 : 2) : (li ? 5 : 4); for (let k = 0; k < n; k++) {
+    const type = (li === 1 && k === 2) ? 'bus' : CARS[(k * 2 + li * 3) % CARS.length]; const w = carClone(type, k * 3 + li); if (!w) continue;
+    traffic.push({ w, ln, x: -90 + k * (180 / n) + li * 11 }); } });
   needs = true;
 });
+function R01(i) { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
 function updateTraffic(dt) {
-  for (const t of traffic) { t.x += t.dir * t.v * dt; if (t.x > 80) t.x = -80; if (t.x < -80) t.x = 80; t.w.position.set(t.x, -0.12, t.z); t.w.rotation.y = t.dir > 0 ? 0 : Math.PI; }
+  for (const t of traffic) { t.x += t.ln.dir * t.ln.v * dt; if (t.x > 95) t.x -= 190; if (t.x < -95) t.x += 190;
+    t.w.position.set(t.x, ROAD_Y, t.ln.z); t.w.rotation.y = t.ln.dir > 0 ? 0 : Math.PI; }
 }
 
 const house = new THREE.Group(); scene.add(house);
@@ -555,7 +525,7 @@ function hover(e) {
 function resize() {
   const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
   renderer.setSize(w, h, false); camera.aspect = w / h;
-  camera.fov = w < 700 ? 52 : 38; camera.updateProjectionMatrix(); needs = true;
+  camera.fov = w < 700 ? 62 : 50; camera.updateProjectionMatrix(); needs = true;
 }
 window.addEventListener('resize', resize);
 let last = performance.now();
@@ -571,6 +541,12 @@ function frame(now) {
   const off = camPos.clone().sub(camTgt); const r = off.length() * userOrbit.zoom;
   const az = Math.atan2(off.x, off.z) + userOrbit.az, el = clamp(Math.asin(off.y / off.length()) + userOrbit.el, -0.05, 1.35);
   camera.position.set(camTgt.x + r * Math.cos(el) * Math.sin(az), Math.max(0.6, camTgt.y + r * Math.sin(el)), camTgt.z + r * Math.cos(el) * Math.cos(az));
+  { // nicht in die Häuser gegenüber fahren: hinter der Bauflucht steigt die Kamera über die Dächer (Kranperspektive)
+    const z = camera.position.z, k = clamp((-17.2 - z) / 2.5, 0, 1), kk = k * k * (3 - 2 * k);
+    camera.position.y = Math.max(camera.position.y, 0.6 + kk * 26);
+    const zb = camera.position.z - camTgt.z, xb = camera.position.x - camTgt.x;   // seitlich hinter dem Neumann Haus nicht in die Nachbarzeile
+    if (camera.position.x > 8.6 && camera.position.z > -0.3) camera.position.y = Math.max(camera.position.y, 23);
+  }
   if (camera.aspect < 0.8) camera.lookAt(camTgt.x, camTgt.y - r * 0.07, camTgt.z); else camera.lookAt(camTgt);   // Handy: Gerüst über die Infokarte schieben
   if (kit) updateKit(kit, prog, expl);
   if (tarp.visible) tarpMat.opacity = 0.82 * ease(clamp((prog - 0.92) / 0.08, 0, 1)) * (1 - expl * 0.8);
@@ -579,4 +555,4 @@ function frame(now) {
 resize();
 select((location.hash || '').slice(1) || 'fassade', true);
 requestAnimationFrame(frame);
-window.NeumannKonfig = { select, TYPES };
+window.NeumannKonfig = { select, TYPES, traffic, camera, scene };

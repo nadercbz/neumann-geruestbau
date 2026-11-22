@@ -3,6 +3,15 @@
 Vorschau der neuen Website für die Neumann Gerüstbau GmbH, Berlin.
 Statische Seite ohne Build: HTML, CSS, JavaScript. Die Scroll-Animation besteht aus 121 Einzelbildern in `assets/frames`.
 
+## Version 10: Konfigurator in echter Berliner Straße (22.11.2026)
+- Umgebung komplett aus Blender (zwei Blender Agenten, je mit gebackener AO auf der zweiten UV):
+  - assets/konfig/strasse_park.glb (7,4 MB): Berliner Gehweg, Bordstein, Fahrbahn mit Markierung, Laternen, Park mit Wegen, Brunnen, Bänken, Hecken, eigene Bäume aus Blattkarten. Skripte 08_Blender/umgebung_strasse/.
+  - assets/konfig/gebaeude.glb (9,2 MB): Nachbarhäuser rechts, Zeile gegenüber mit Läden, Stadtblöcke. Skript 08_Blender/umgebung_gebaeude/gebaeude.py.
+- Himmel: Poly Haven kloppenheim_06_puresky (CC0), gedreht für Streiflicht von links, als Hintergrund und Umgebungslicht (assets/konfig/himmel.webp).
+- Autos: volle Earth 3D Modelle (Glas, Innenraum), Fahrspuren mit Abstand zum Parkstreifen, Fahrtrichtung aus den Rädern bestimmt, am Handy weniger Autos.
+- Skyline: Fernsehturm und Alexanderplatz aus Earth 3D am Horizont (assets/konfig/skyline/).
+- Kameras über der Fahrbahn, beim Herauszoomen steigt die Kamera über die Dächer.
+
 ## Version 9: Konfigurator mit detailliertem Haus und Umgebung (22.11.2026)
 - assets/konfig/haus.glb: Gründerzeithaus aus Blender (Blender Agent, Skript 08_Blender/haus_web/haus_web.py), echte 3D Fenster, Tür, Stuck, Mansarde, 5,8 MB, 52.000 Dreiecke, Texturen Poly Haven CC0.
 - Umgebung im Browser: Sky (three.js), Streiflicht von links mit Schatten, Gehweg, Straße, Rasen, Hecken, Nachbarhäuser, 20 Bäume aus Blattbüscheln (Instanzen), geparkte und fahrende Autos (Earth 3D Modelle, meshopt).
