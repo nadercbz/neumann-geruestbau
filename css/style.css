@@ -392,3 +392,19 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .explore__tile:hover{background:var(--blue)}
 .explore__tile:hover .mono,.explore__tile:hover p{color:rgba(255,255,255,.85)}
 @media (max-width:860px){.explore__grid{grid-template-columns:1fr}.explore__tile{min-height:0;padding-bottom:56px}}
+
+/* ---------- Erklärfilm (Gerüstbau erklärt) ---------- */
+.explain{position:relative;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.6fr);grid-template-areas:'head frame' 'nav frame';column-gap:clamp(28px,4vw,72px);row-gap:0;align-items:center;padding:clamp(70px,9vw,130px) var(--pad);border-top:1px solid var(--line-d);background:var(--ink)}
+.explain__title{font-weight:400;font-size:clamp(34px,4vw,62px);letter-spacing:-.035em;line-height:1.02;margin:18px 0 22px}
+.explain__lead{color:rgba(255,255,255,.72);font-size:clamp(16px,1.2vw,19px);max-width:34em}
+.explain__ch{list-style:none;margin:30px 0 30px;padding:0;border-top:1px solid var(--line-d)}
+.explain__ch button{display:flex;align-items:baseline;gap:18px;width:100%;padding:16px 0;border:0;border-bottom:1px solid var(--line-d);color:#fff;font:inherit;font-size:clamp(17px,1.35vw,21px);text-align:left;background:none;cursor:pointer;transition:color .3s,padding .3s}
+.explain__ch button .mono{color:var(--mut-d);min-width:3.4em}
+.explain__ch button:hover,.explain__ch button.is-on{color:var(--blue-hi);padding-left:8px}
+.explain__ch button.is-on .mono{color:var(--blue-hi)}
+.explain__more{display:inline-flex;align-items:center;gap:12px;color:#fff;font-size:15px;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:5px;transition:border-color .3s}
+.explain__more:hover{border-color:#fff}
+.explain__head{grid-area:head;align-self:end}.explain__nav{grid-area:nav;align-self:start}
+.explain__frame{grid-area:frame;border:1px solid var(--line-d)}
+.explain.is-playing .film__play{opacity:0;pointer-events:none}
+@media (max-width:960px){.explain{grid-template-columns:1fr;grid-template-areas:'head' 'frame' 'nav';row-gap:28px}.explain__ch{margin-top:4px}}

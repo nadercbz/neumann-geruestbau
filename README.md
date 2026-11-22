@@ -3,6 +3,11 @@
 Vorschau der neuen Website für die Neumann Gerüstbau GmbH, Berlin.
 Statische Seite ohne Build: HTML, CSS, JavaScript. Die Scroll-Animation besteht aus 121 Einzelbildern in `assets/frames`.
 
+## Version 11: Erklärfilm „Gerüstbau erklärt“ auf der Startseite (22.11.2026)
+- Neuer Abschnitt `#erklaert` nach dem Drahtmodell: Erklärfilm 1:43 mit Kapiteln (Aufbau, Gerüstarten, Prüfung), die per Klick an die Stelle springen. Film `assets/film/neumann_erklaerfilm.mp4`, Bild `assets/film/erklaerfilm_poster.jpg`. Spielt einer der beiden Filme, pausiert der andere.
+- Der Film ist komplett aus dem 3D Konfigurator gerendert: Filmmodus `geruestarten.html?film` (nur zum Aufnehmen, Steuerung `window.NeumannFilm`), Drehplan und Aufnahme in `../13_Erklaerfilm/werkzeuge/` (`plan.mjs`, `aufnahme.mjs`), Schnitt mit Stimme, Musik und Geräuschen in `../13_Erklaerfilm/video/` (HyperFrames, `python3 bauen.py`).
+- Konfigurator: Fußspindel jetzt grün (#10b981), damit sie sich von den anderen Bauteilen abhebt.
+
 ## Version 10: Konfigurator in echter Berliner Straße (22.11.2026)
 - Umgebung komplett aus Blender (zwei Blender Agenten, je mit gebackener AO auf der zweiten UV):
   - assets/konfig/strasse_park.glb (7,4 MB): Berliner Gehweg, Bordstein, Fahrbahn mit Markierung, Laternen, Park mit Wegen, Brunnen, Bänken, Hecken, eigene Bäume aus Blattkarten. Skripte 08_Blender/umgebung_strasse/.

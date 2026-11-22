@@ -202,3 +202,25 @@
   .hs{width:26px;height:26px;margin:-13px 0 0 -13px;font-size:10px}
 }
 @media (max-width:560px){.steps,.badges{grid-template-columns:1fr}.ba{aspect-ratio:4/3}}
+
+/* ---------- Filmmodus des Konfigurators (nur für die Aufnahme des Erklärfilms) ---------- */
+.filmmodus .nav,.filmmodus .konfig__list,.filmmodus .konfig__card,.filmmodus .konfig__tools,.filmmodus .legend,.filmmodus .tip{display:none!important}
+#filmlabels{position:absolute;inset:0;pointer-events:none;z-index:4}
+.ftag{position:absolute}
+.ftag__dot{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.35),0 2px 10px rgba(0,0,0,.4)}
+.ftag__line{position:absolute;overflow:visible}
+.ftag__line line{stroke:#fff;stroke-width:2.5}
+.ftag__card{position:absolute;transform:translate(0,-50%);padding:18px 26px 17px 22px;background:#fff;color:#0c0d10;border-left:8px solid var(--c);box-shadow:0 10px 40px rgba(0,0,0,.35);white-space:nowrap;font-family:Archivo,sans-serif}
+.ftag__card b{display:block;font-weight:600;font-size:46px;letter-spacing:-.02em;line-height:1}
+.ftag__card span{display:block;margin-top:8px;font-size:27px;color:#4a4d55}
+.ftag__card--big b{font-size:68px}
+.ftag__card--big span{font-size:31px}
+#filmfade{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;opacity:0}
+.ftag__card--l{transform:translate(-100%,-50%)}
+.ftag__card ul{list-style:none;margin:14px 0 0;padding:0;font-size:27px;color:#2b2e35}
+.ftag__card li{padding:5px 0 5px 36px;position:relative}
+.ftag__card li::before{content:"";position:absolute;left:2px;top:12px;width:14px;height:8px;border-left:3px solid var(--c);border-bottom:3px solid var(--c);transform:rotate(-45deg)}
+.flegend{position:absolute;left:96px;bottom:86px;display:flex;flex-direction:column;gap:11px;padding:24px 30px;background:rgba(12,13,16,.72);backdrop-filter:blur(8px);color:#fff;font-family:Archivo,sans-serif;font-size:28px}
+.flegend span{display:flex;align-items:center;gap:12px}
+.flegend i{width:16px;height:16px;border-radius:3px}
+.ftag__card--s{padding:10px 16px 9px 14px}.ftag__card--s b{font-size:30px}

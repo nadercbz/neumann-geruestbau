@@ -21,7 +21,7 @@ const PARTS = {
   'Geländer':     { txt: 'Seitenschutz in 1,0 m und 0,5 m Höhe gegen Absturz.', col: '#f43f5e', ex: [0, 0, -1.2] },
   'Bordbrett':    { txt: 'Fußleiste am Belag, damit kein Werkzeug herunterfällt.', col: '#fb923c', ex: [0, 0, -1.7] },
   'Verankerung':  { txt: 'Verbindet das Gerüst mit der Fassade, nimmt Wind und Zug auf.', col: '#e879f9', ex: [0, 0, 1.0] },
-  'Fußspindel':   { txt: 'Höhenverstellbarer Fuß mit Fußplatte, gleicht Unebenheiten aus.', col: '#94a3b8', ex: [0, -0.9, 0] },
+  'Fußspindel':   { txt: 'Höhenverstellbarer Fuß mit Fußplatte, gleicht Unebenheiten aus.', col: '#10b981', ex: [0, -0.9, 0] },
   'Leiter':       { txt: 'Innenliegender Aufstieg zwischen den Lagen.', col: '#facc15', ex: [0, 0, 0.6] },
   'Lenkrolle':    { txt: 'Feststellbare Rolle, damit das Gerüst verschoben werden kann.', col: '#94a3b8', ex: [0, -0.9, 0] },
   'Ausleger':     { txt: 'Seitliche Stütze, vergrößert die Standfläche gegen Kippen.', col: '#f59e0b', ex: [0, 0, 0] },
@@ -57,7 +57,9 @@ const TYPES = [
 
 /* ---------- Grundgerüst der Szene ---------- */
 const canvas = document.getElementById('konfig');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+const FILM = new URLSearchParams(location.search).has('film');   // Filmmodus: Bild für Bild steuerbar für den Erklärfilm
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: FILM });
+let loaded = 0; const LOADED_ALL = 12;
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
@@ -74,7 +76,7 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 const loader = new THREE.TextureLoader();
 loader.load('assets/konfig/himmel.webp?v=1', t => {
   t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace;
-  scene.background = t; scene.backgroundIntensity = 1.55; scene.environment = pmrem.fromEquirectangular(t).texture; needs = true;
+  scene.background = t; scene.backgroundIntensity = 1.55; scene.environment = pmrem.fromEquirectangular(t).texture; needs = true; loaded++;
 });
 scene.environmentIntensity = 0.75;
 renderer.toneMappingExposure = 0.62;
@@ -125,7 +127,7 @@ function prepEnv(root) {
   });
   return root;
 }
-for (const f of ['strasse_park', 'gebaeude']) gltf.load(`assets/konfig/${f}.glb?v=3`, g => { scene.add(prepEnv(g.scene)); needs = true; }, undefined, () => {});
+for (const f of ['strasse_park', 'gebaeude']) gltf.load(`assets/konfig/${f}.glb?v=3`, g => { scene.add(prepEnv(g.scene)); needs = true; loaded++; }, undefined, () => { loaded++; });
 
 /* ---------- Berliner Skyline am Horizont (Modelle aus Earth 3D) ---------- */
 const SKY_LINE = [ // Name, Höhe in m, x, z (three.js), Drehung
@@ -137,8 +139,8 @@ SKY_LINE.forEach(([n, h, x, z, r]) => gltf.load(`assets/konfig/skyline/${n}.glb`
   const o = g.scene, bb = new THREE.Box3().setFromObject(o), k = h / Math.max(0.01, bb.max.y - bb.min.y);
   o.scale.setScalar(k); o.position.set(x, -bb.min.y * k, z); o.rotation.y = r;
   o.traverse(c => { if (c.isMesh) { c.material = hazeMix(c.material, 0.52); c.castShadow = c.receiveShadow = false; } });
-  scene.add(o); needs = true;
-}));
+  scene.add(o); needs = true; loaded++;
+}, undefined, () => { loaded++; }));
 
 /* ---------- Verkehr: volle Automodelle, zwei Fahrspuren mit festem Abstand, Parkstreifen gegenüber ---------- */
 const CARS = ['kompakt', 'kombi', 'limousine', 'suv', 'taxi', 'transporter'];
@@ -164,8 +166,8 @@ Promise.all(CARS.concat(['bus']).map(n => new Promise(res => gltf.load(`assets/k
   for (let x = -46; x < 48; x += LITE ? 12.4 : 6.2) { if (R01(i) < 0.18) { i++; continue; } const w = carClone(CARS[i % CARS.length], i + 2); if (w) { w.position.set(x, ROAD_Y, PARK_Z); w.rotation.y = (i % 3 === 0) ? Math.PI : 0; } i++; }
   LANE.forEach((ln, li) => { const n = LITE ? (li ? 3 : 2) : (li ? 5 : 4); for (let k = 0; k < n; k++) {
     const type = (li === 1 && k === 2) ? 'bus' : CARS[(k * 2 + li * 3) % CARS.length]; const w = carClone(type, k * 3 + li); if (!w) continue;
-    traffic.push({ w, ln, x: -90 + k * (180 / n) + li * 11 }); } });
-  needs = true;
+    traffic.push({ w, ln, x: -90 + k * (180 / n) + li * 11, x0: -90 + k * (180 / n) + li * 11 }); } });
+  needs = true; loaded++;
 });
 function R01(i) { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
 function updateTraffic(dt) {
@@ -209,8 +211,8 @@ gltf.load('assets/konfig/haus.glb?v=2', g => {
   const old = [...house.children]; old.forEach(o => house.remove(o));
   g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { m.side = THREE.FrontSide; if (m.map) m.map.anisotropy = 8; }); } });
   house.add(g.scene); if (current) house.traverse(o => { if (/schorn|chimney|kamin/i.test(o.name)) o.visible = current.id !== 'dach'; });
-  applyXray(); needs = true;
-}, undefined, () => {});
+  applyXray(); needs = true; loaded++;
+}, undefined, () => { loaded++; });
 const hall = new THREE.Group(); scene.add(hall); hall.visible = false;
 (function buildHall() { // offene Halle für das Raumgerüst
   const cm = new THREE.MeshStandardMaterial({ color: '#8f8d88', roughness: 0.92 });
@@ -258,6 +260,8 @@ class Kit {
   finish(group) {
     const all = Object.values(this.items).flat(); const c = new THREE.Vector3();
     all.forEach(it => c.add(it.p)); c.divideScalar(Math.max(1, all.length));
+    const span = {}; for (const it of all) { const r = span[it.label] || (span[it.label] = [1e9, -1e9]); r[0] = Math.min(r[0], it.t); r[1] = Math.max(r[1], it.t); }
+    for (const it of all) { const r = span[it.label]; it.tn = r[1] > r[0] ? (it.t - r[0]) / (r[1] - r[0]) : 0; }   // Reihenfolge innerhalb der Gruppe (Filmmodus)
     for (const it of all) { // Richtung für die Explosionsansicht: Bauteilgruppe plus Abstand zur Mitte
       const e = PARTS[it.label]?.ex || [0, 0, 0];
       it.ex = V(e[0] + (it.p.x - c.x) * 0.16, e[1] + (it.p.y - c.y) * 0.22, e[2]);
@@ -273,13 +277,17 @@ class Kit {
   }
 }
 const M4 = new THREE.Matrix4(), TMP = new THREE.Vector3(), SC = new THREE.Vector3();
+let filmLab = null, filmHot = null;   // Filmmodus: Fortschritt je Bauteilgruppe, hervorgehobene Gruppen
+const FILM_THICK = { 'Fußspindel': 2.2, 'Verankerung': 2.6, 'Diagonale': 1.7 };
 function updateKit(kit, prog, expl) {
   for (const m of kit.meshes) {
     const list = m.userData.list;
     for (let i = 0; i < list.length; i++) {
-      const it = list[i]; const e = ease(clamp((prog - it.t) / 0.07, 0, 1));
+      const it = list[i]; const lp = filmLab ? (filmLab[it.label] ?? 1) : null;
+      const e = lp === null ? ease(clamp((prog - it.t) / 0.07, 0, 1)) : ease(clamp((lp * 1.2 - it.tn) / 0.2, 0, 1));
       TMP.copy(it.p).addScaledVector(it.ex, expl * 2.6); TMP.y += (1 - e) * 1.2;
       SC.copy(it.s).multiplyScalar(e < 0.001 ? 0 : 1); if (m.geometry === GEOS.rohr) SC.y = it.s.y * e;
+      if (filmHot && m.geometry === GEOS.rohr && filmHot.has(it.label)) { const th = FILM_THICK[it.label] || 1.45; SC.x *= th; SC.z *= th; }
       M4.compose(TMP, it.q, SC); m.setMatrixAt(i, M4);
     }
     m.instanceMatrix.needsUpdate = true;
@@ -553,6 +561,55 @@ function frame(now) {
   renderer.render(scene, camera);
 }
 resize();
-select((location.hash || '').slice(1) || 'fassade', true);
-requestAnimationFrame(frame);
+select((location.hash || '').slice(1) || 'fassade', !FILM);
+if (!FILM) requestAnimationFrame(frame);
+else {
+  document.body.classList.add('filmmodus');
+  const box = document.createElement('div'); box.id = 'filmlabels'; document.querySelector('.konfig').appendChild(box);
+  let hotNow = null;
+  const P = new THREE.Vector3();
+  const fade = document.createElement('canvas'); fade.id = 'filmfade'; fade.width = canvas.width; fade.height = canvas.height; document.querySelector('.konfig').appendChild(fade);
+  const fctx = fade.getContext('2d');
+  function apply(st) {
+    if (!current || st.type !== current.id) { select(st.type, false); hotNow = '__'; }
+    if (!!st.xray !== xray) { xray = !!st.xray; applyXray(); hotNow = '__'; }
+    filmLab = st.labels || null; prog = st.prog ?? 1; expl = st.expl ?? 0;
+    const hot = st.hot || null, hk = Array.isArray(hot) ? hot.join() : hot;
+    filmHot = hot && st.thick !== false ? new Set(Array.isArray(hot) ? hot : [hot]) : null;
+    if (hk !== hotNow) { hotNow = hk;
+      for (const m of kit.meshes) { m.userData.list.forEach((x, i) => m.setColorAt(i, new THREE.Color(hot && (x.label === hot || (Array.isArray(hot) && hot.includes(x.label))) ? (PARTS[x.label]?.col || '#fff') : '#ffffff'))); m.instanceColor.needsUpdate = true; } }
+    camera.fov = st.fov ?? 50; camera.aspect = canvas.clientWidth / canvas.clientHeight; camera.updateProjectionMatrix();
+    camera.position.set(st.cam[0], st.cam[1], st.cam[2]); camera.lookAt(st.cam[3], st.cam[4], st.cam[5]);
+    for (const t of traffic) { let x = t.x0 + t.ln.dir * t.ln.v * (st.time || 0); x = ((x + 95) % 190 + 190) % 190 - 95; t.w.position.set(x, ROAD_Y, t.ln.z); t.w.rotation.y = t.ln.dir > 0 ? 0 : Math.PI; }
+    updateKit(kit, prog, expl);
+    if (tarp.visible) tarpMat.opacity = 0.82 * (st.tarp ?? ease(clamp((prog - 0.92) / 0.08, 0, 1))) * (1 - expl * 0.8);
+    renderer.render(scene, camera);
+  }
+  window.NeumannFilm = {
+    ready: () => loaded >= LOADED_ALL,
+    loaded: () => loaded,
+    info(type) {   // Lage der Bauteilgruppen, um Schilder zu setzen
+      if (type && (!current || current.id !== type)) select(type, false);
+      const out = {};
+      for (const m of kit.meshes) for (const it of m.userData.list) { const o = out[it.label] || (out[it.label] = { n: 0, min: [1e9, 1e9, 1e9], max: [-1e9, -1e9, -1e9], first: null, pts: [] });
+        o.n++; const p = [it.p.x, it.p.y, it.p.z]; for (let k = 0; k < 3; k++) { o.min[k] = Math.min(o.min[k], p[k]); o.max[k] = Math.max(o.max[k], p[k]); }
+        if (o.pts.length < 400) o.pts.push(p.map(v => +v.toFixed(2)).concat(+it.tn.toFixed(3))); }
+      return out;
+    },
+    set(st) {
+      if (st.from) { apply(st.from); fctx.drawImage(canvas, 0, 0, fade.width, fade.height); fade.style.opacity = 1 - (st.k ?? 1); }
+      else fade.style.opacity = 0;
+      apply(st);
+      // Schilder: Weltpunkt auf den Bildschirm, mit Linie zum Bauteil
+      const W = canvas.clientWidth, H = canvas.clientHeight;
+      box.innerHTML = (st.tags || []).map(g => {
+        P.set(g.at[0], g.at[1], g.at[2]).project(camera); const x = (P.x + 1) / 2 * W, y = (1 - P.y) / 2 * H;
+        const dx = g.dx ?? 140, dy = g.dy ?? -90, a = g.a ?? 1;
+        const rows = g.rows ? `<ul>${g.rows.map(r => `<li>${r}</li>`).join('')}</ul>` : '';
+        return `<div class="ftag" style="opacity:${a};left:${x}px;top:${y}px;--k:${a}"><i class="ftag__dot"></i><svg class="ftag__line" width="${Math.abs(dx) + 4}" height="${Math.abs(dy) + 4}" style="left:${dx < 0 ? dx : 0}px;top:${dy < 0 ? dy : 0}px"><line x1="${dx < 0 ? Math.abs(dx) + 2 : 2}" y1="${dy < 0 ? Math.abs(dy) + 2 : 2}" x2="${dx < 0 ? 2 : Math.abs(dx) + 2}" y2="${dy < 0 ? 2 : Math.abs(dy) + 2}"/></svg><div class="ftag__card${g.big ? ' ftag__card--big' : ''}${g.small ? ' ftag__card--s' : ''}${dx < 0 ? ' ftag__card--l' : ''}" style="left:${dx}px;top:${dy}px;--c:${g.col || (PARTS[g.t] && PARTS[g.t].col) || '#3633cb'}"><b>${g.t}</b>${g.s ? `<span>${g.s}</span>` : ''}${rows}</div></div>`;
+      }).join('') + (st.legend ? `<div class="flegend" style="opacity:${st.legendA ?? 1}">${st.legend.map(l => `<span><i style="background:${PARTS[l]?.col || '#fff'}"></i>${l}</span>`).join('')}</div>` : '');
+      return true;
+    },
+  };
+}
 window.NeumannKonfig = { select, TYPES, traffic, camera, scene };

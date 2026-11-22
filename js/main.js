@@ -253,4 +253,22 @@ if(film&&fv&&fp){
     new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting&&!fv.paused)fv.pause()})},{threshold:0.2}).observe(film);
   }
 }
+/* ---------- Erklärfilm: Start per Klick, Kapitel springen an die Stelle ---------- */
+var ex=$('#erklaert'),ev=$('#explainVideo'),ep=$('#explainPlay'),ec=[].slice.call(document.querySelectorAll('#explainCh button'));
+if(ex&&ev&&ep){
+  var pend=null;
+  ev.addEventListener('loadedmetadata',function(){if(pend!==null){ev.currentTime=pend;pend=null}});
+  var go=function(t){
+    ev.controls=true;ev.muted=false;ex.classList.add('is-playing');
+    if(t!==null){if(ev.readyState>=1)ev.currentTime=t;else pend=t}
+    var pr=ev.play();if(pr&&pr.catch)pr.catch(function(){ex.classList.remove('is-playing')});
+  };
+  ep.addEventListener('click',function(){go(null)});
+  ec.forEach(function(b){b.addEventListener('click',function(){go(+b.dataset.t)})});
+  ev.addEventListener('timeupdate',function(){var t=ev.currentTime;ec.forEach(function(b,i){var a=+b.dataset.t,n=ec[i+1]?+ec[i+1].dataset.t:1e9;b.classList.toggle('is-on',t>=a&&t<n)})});
+  ev.addEventListener('ended',function(){ex.classList.remove('is-playing');ev.controls=false;ec.forEach(function(b){b.classList.remove('is-on')});ev.currentTime=0;ev.load()});
+  ev.addEventListener('play',function(){if(fv&&!fv.paused)fv.pause()});
+  if(fv)fv.addEventListener('play',function(){if(!ev.paused)ev.pause()});
+  if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting&&!ev.paused)ev.pause()})},{threshold:0.2}).observe(ex)}
+}
 })();
