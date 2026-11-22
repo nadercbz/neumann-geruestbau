@@ -1,9 +1,12 @@
 // Gerüstarten erleben: 3D Konfigurator mit sechs Gerüsttypen, animiertem Aufbau, Röntgenblick und Explosionsansicht.
 // Alle Gerüste werden aus echten Bauteilmaßen gebaut (Feld 2,57 m, Lage 2,0 m, Rohr 48,3 mm, Belagbreite 0,73 m).
 import * as THREE from 'three';
-import { RoomEnvironment } from '../assets/vendor/RoomEnvironment.js';
+import { GLTFLoader } from '../assets/vendor/jsm/loaders/GLTFLoader.js';
+import { Sky } from '../assets/vendor/jsm/objects/Sky.js';
+import { MeshoptDecoder } from '../assets/vendor/jsm/meshopt_decoder.module.js';
 
 const BW = 2.57, LH = 2.0, DEP = 0.73, GAP = 0.3, R48 = 0.0242;
+const DACH_LV = 9, DACH_ZB = 12.4, DACH_RISE = 4.2;   // Wetterschutzdach: über Gauben und Schornsteine, hinten vor den Hofbalkonen
 const HOUSE = { x0: -8, x1: 8, d: 11, eave: 15.2 };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const ease = t => t * t * (3 - 2 * t);
@@ -50,7 +53,7 @@ const TYPES = [
     facts: [['Laufbreite', 'ca. 0,6 m'], ['Podest', 'jede Lage'], ['Höhe hier', '14 m']], cam: [-30, 11, -22, -8, 8, 0] },
   { id: 'dach', name: 'Wetterschutzdach', kurz: 'Arbeiten bei jedem Wetter.',
     text: 'Leichte Fachwerkträger überspannen das ganze Gebäude, darauf liegt eine Plane. Für Dachsanierungen und Rohbau, damit Regen und Schnee draußen bleiben.',
-    facts: [['Spannweite hier', '12,5 m'], ['Eindeckung', 'Plane'], ['Stützenfrei', 'über dem Dach']], cam: [-22, 20, -24, 0, 12, 5.5] },
+    facts: [['Spannweite hier', '14,4 m'], ['Eindeckung', 'Plane'], ['Stützenfrei', 'über dem Dach']], cam: [-22, 20, -24, 0, 12, 5.5] },
 ];
 
 /* ---------- Grundgerüst der Szene ---------- */
@@ -61,17 +64,27 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
-scene.background = new THREE.Color('#0c0d10'); scene.fog = new THREE.Fog('#0c0d10', 38, 80);
-const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
-scene.environmentIntensity = 0.55;
-const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 300);
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 4000);
 
-const sun = new THREE.DirectionalLight('#ffd9a8', 3.2); sun.position.set(-22, 26, -18);
-sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
-Object.assign(sun.shadow.camera, { left: -24, right: 24, top: 26, bottom: -6, near: 1, far: 90 });
-scene.add(sun, sun.target); sun.target.position.set(0, 6, 3);
-scene.add(new THREE.HemisphereLight('#bcd2ff', '#3a2c22', 0.55));
+/* ---------- Himmel und Sonne: tiefe Nachmittagssonne von links vorne ---------- */
+const SUN_DIR = new THREE.Vector3(-0.86, 0.34, -0.38).normalize();   // flaches Streiflicht von links: Stuck und Laibungen werfen Schatten
+const sky = new Sky(); sky.scale.setScalar(3000); scene.add(sky);
+Object.assign(sky.material.uniforms.turbidity, { value: 4.5 }); sky.material.uniforms.rayleigh.value = 1.6;
+sky.material.uniforms.mieCoefficient.value = 0.004; sky.material.uniforms.mieDirectionalG.value = 0.82;
+sky.material.uniforms.sunPosition.value.copy(SUN_DIR);
+scene.fog = new THREE.Fog('#c9d6e4', 70, 260);
+const pmrem = new THREE.PMREMGenerator(renderer);
+(() => { const ss = new THREE.Scene(); const s2 = new Sky(); s2.scale.setScalar(1000); s2.material.uniforms.sunPosition.value.copy(SUN_DIR);
+  s2.material.uniforms.turbidity.value = 4.5; s2.material.uniforms.rayleigh.value = 1.6; ss.add(s2);
+  scene.environment = pmrem.fromScene(ss, 0).texture; })();
+scene.environmentIntensity = 0.42;
+renderer.toneMappingExposure = 0.58;
+
+const sun = new THREE.DirectionalLight('#ffcf98', 4.6); sun.position.copy(SUN_DIR).multiplyScalar(60).add(new THREE.Vector3(0, 0, 4));
+sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.025;
+Object.assign(sun.shadow.camera, { left: -34, right: 34, top: 34, bottom: -24, near: 1, far: 140 });
+scene.add(sun, sun.target); sun.target.position.set(0, 4, 2);
+scene.add(new THREE.HemisphereLight('#b7cdf2', '#4a3c2c', 0.3));
 
 const loader = new THREE.TextureLoader();
 function tex(url, rx, ry, srgb = true) {
@@ -81,11 +94,114 @@ function tex(url, rx, ry, srgb = true) {
   return t;
 }
 
-/* ---------- Boden, Haus, Halle ---------- */
-const ground = new THREE.Mesh(new THREE.CircleGeometry(60, 64), new THREE.MeshStandardMaterial({ map: tex('assets/konfig/pflaster.webp', 30, 30), roughness: 0.95, color: '#b9b4ab' }));
-ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
-const road = new THREE.Mesh(new THREE.PlaneGeometry(120, 14), new THREE.MeshStandardMaterial({ map: tex('assets/konfig/asphalt.webp', 30, 3.5), roughness: 0.9, color: '#8d8d8d' }));
-road.rotation.x = -Math.PI / 2; road.position.set(0, 0.01, -12.5); road.receiveShadow = true; scene.add(road);
+/* ---------- Straße, Gehwege, Rasen ---------- */
+function slab(w, d, mat, x, y, z, h = 0.02) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y - h / 2, z); m.receiveShadow = true; scene.add(m); return m; }
+const M = {
+  rasen: new THREE.MeshStandardMaterial({ map: tex('assets/konfig/rasen.webp', 70, 70), roughness: 1, color: '#9fb07a' }),
+  pflaster: new THREE.MeshStandardMaterial({ map: tex('assets/konfig/pflaster.webp', 60, 6), roughness: 0.95, color: '#c9c3b8' }),
+  hof: new THREE.MeshStandardMaterial({ map: tex('assets/konfig/pflaster.webp', 12, 10), roughness: 0.95, color: '#b9b3a8' }),
+  asphalt: new THREE.MeshStandardMaterial({ map: tex('assets/konfig/asphalt.webp', 40, 3.2), roughness: 0.92, color: '#7d7d80' }),
+  bord: new THREE.MeshStandardMaterial({ map: tex('assets/konfig/bord.webp', 60, 0.2), roughness: 0.8, color: '#cfcfcf' }),
+  linie: new THREE.MeshStandardMaterial({ color: '#e9e7df', roughness: 0.6 }),
+};
+const ground = new THREE.Mesh(new THREE.CircleGeometry(220, 64), M.rasen); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.03; ground.receiveShadow = true; scene.add(ground);
+slab(160, 5.3, M.pflaster, 0, 0.0, -2.65, 0.12);            // Gehweg vor dem Haus
+slab(160, 0.3, M.bord, 0, 0.02, -5.45, 0.16);                 // Bordstein
+slab(160, 9.0, M.asphalt, 0, -0.12, -10.1, 0.02);               // Fahrbahn
+slab(160, 0.3, M.bord, 0, 0.02, -14.75, 0.16);
+slab(160, 4.5, M.pflaster, 0, 0.0, -17.15, 0.12);           // Gehweg gegenüber
+slab(16.6, 11.4, M.hof, 0, 0.005, 5.5, 0.02);                 // Fläche unter dem Haus und der Halle
+for (let x = -78; x < 78; x += 6) slab(3, 0.14, M.linie, x, -0.112, -10.1, 0.005);   // Mittellinie
+for (const z of [-5.95, -14.25]) slab(160, 0.12, M.linie, 0, -0.112, z, 0.005);      // Randlinien
+// Hecken an den Grundstücksgrenzen
+const heckeMat = new THREE.MeshStandardMaterial({ color: '#2f4a1c', roughness: 0.95 });
+(() => { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+  for (let i = 0; i < 2600; i++) { const v = 30 + Math.random() * 60; g.fillStyle = `rgb(${v * 0.55},${v * 1.1},${v * 0.35})`; g.beginPath(); g.arc(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 4, 0, 7); g.fill(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(6, 1); heckeMat.map = t; heckeMat.color.set('#ffffff'); heckeMat.bumpMap = t; heckeMat.bumpScale = 3; })();
+for (const [x, z, w, d] of [[-14.5, 6, 0.9, 14], [14.5, 6, 0.9, 14], [-24, 13.2, 20, 0.9], [24, 13.2, 20, 0.9]]) {
+  const h = new THREE.Mesh(new THREE.BoxGeometry(w, 1.5, d), heckeMat); h.position.set(x, 0.75, z); h.castShadow = h.receiveShadow = true; scene.add(h);
+}
+
+/* ---------- Nachbarhäuser als ruhige Kulisse ---------- */
+(() => {
+  const cols = ['#d9c6a5', '#c9a58c', '#e3d7c0', '#b9c2b0', '#d8b9a0'];
+  const rows = [[-27, 15, 17.5], [-43.5, 16, 16], [27, 15, 18], [43, 15, 16.2], [-60, 16, 17], [60, 16, 15.5]];
+  rows.forEach(([x, w, h], i) => {
+    const g = new THREE.Group(); scene.add(g);
+    const wall = new THREE.MeshStandardMaterial({ map: tex('assets/konfig/fassade.webp', w / 6.114, h / 7.6), color: cols[i % cols.length], roughness: 0.9 });
+    const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, 12), [wall, wall, new THREE.MeshStandardMaterial({ color: '#4a4c52', roughness: 0.85 }), wall, wall, wall]);
+    b.position.set(x, h / 2, 6); b.castShadow = b.receiveShadow = true; g.add(b);
+    const r = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 6.2, 3.2, 4, 1), new THREE.MeshStandardMaterial({ map: tex('assets/konfig/dach.webp', 4, 1), color: '#a0623f', roughness: 0.8 }));
+    r.rotation.y = Math.PI / 4; r.scale.set(w / 8.6, 1, 12 / 8.6); r.position.set(x, h + 1.6, 6); r.castShadow = true; g.add(r);
+  });
+})();
+
+/* ---------- Bäume (Poly Haven, CC0) und Verkehr (eigene Modelle) ---------- */
+const gltf = new GLTFLoader(); gltf.setMeshoptDecoder(MeshoptDecoder);
+const TREES = [[-14.5, -4.3, 1.0], [14.5, -4.3, 0.95], [-21, -4.2, 1.05], [21.5, -4.2, 1.0], [-31, -4.2, 0.9], [31, -4.2, 1.1], [-40, -4.2, 1.0], [40, -4.2, 0.95],
+  [26, -17.6, 1.0], [36, -17.6, 1.1], [-30, -17.6, 0.95], [46, -17.6, 1.0], [-40, -17.6, 1.05],
+  [-18, 9, 1.25], [19, 10, 1.15], [-22, 20, 1.3], [6, 21, 1.2], [-6, 24, 1.35], [24, 22, 1.2], [-11, 17, 1.1]];
+// Bäume: Stamm und Äste als Rohre, Krone aus vielen Blattbüscheln (Instanzen, eine Zeichnung für alle Bäume)
+function leafTex() {
+  const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d'); let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 170; i++) {
+    const x = 60 + rnd() * 392, y = 60 + rnd() * 392, r = 18 + rnd() * 16, a = rnd() * 6.28, l = 0.42 + rnd() * 0.45;
+    g.save(); g.translate(x, y); g.rotate(a);
+    const gr = g.createLinearGradient(-r, 0, r, 0); gr.addColorStop(0, `hsl(${92 + rnd() * 22},${28 + rnd() * 16}%,${12 + l * 16}%)`); gr.addColorStop(1, `hsl(${84 + rnd() * 22},${32 + rnd() * 16}%,${20 + l * 18}%)`);
+    g.fillStyle = gr; g.beginPath(); g.ellipse(0, 0, r, r * 0.48, 0, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(230,240,190,.25)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(-r * 0.9, 0); g.lineTo(r * 0.9, 0); g.stroke(); g.restore();
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+(function buildTrees() {
+  const lt = leafTex();
+  const leafMat = new THREE.MeshStandardMaterial({ map: lt, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.85, transparent: false });
+  const cards = []; const trunks = []; let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  TREES.forEach(([x, z, s]) => {
+    const H = 9.5 * s, cy = H * 0.66, rx = 3.3 * s, ry = 2.9 * s;
+    trunks.push([V(x, 0, z), V(x + (rnd() - 0.5) * 0.4, H * 0.55, z + (rnd() - 0.5) * 0.4), 0.2 * s]);
+    for (let b = 0; b < 5; b++) { const a = rnd() * 6.28, h0 = H * (0.38 + rnd() * 0.18); trunks.push([V(x, h0, z), V(x + Math.cos(a) * rx * 0.7, cy + (rnd() - 0.2) * ry * 0.6, z + Math.sin(a) * rx * 0.7), 0.07 * s]); }
+    const n = Math.round(520 * s * s);
+    for (let i = 0; i < n; i++) {
+      let u, v, w; do { u = rnd() * 2 - 1; v = rnd() * 2 - 1; w = rnd() * 2 - 1; } while (u * u + v * v + w * w > 1);
+      const shell = 0.55 + 0.45 * Math.cbrt(rnd());
+      cards.push({ p: V(x + u * rx * shell, cy + v * ry * shell, z + w * rx * shell), r: new THREE.Euler(rnd() * 6.28, rnd() * 6.28, rnd() * 6.28), s: 0.9 + rnd() * 0.8, k: (0.5 + rnd() * 0.35) * (0.7 + 0.45 * shell) });
+    }
+  });
+  const im = new THREE.InstancedMesh(new THREE.PlaneGeometry(1.1, 1.1), leafMat, cards.length); const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), c = new THREE.Color();
+  cards.forEach((cd, i) => { q.setFromEuler(cd.r); m4.compose(cd.p, q, V(cd.s, cd.s, cd.s)); im.setMatrixAt(i, m4); c.setRGB(cd.k * 0.95, cd.k, cd.k * 0.8); im.setColorAt(i, c); });
+  im.castShadow = true; im.receiveShadow = true;
+  im.customDepthMaterial = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: lt, alphaTest: 0.5 });
+  scene.add(im);
+  const bark = new THREE.MeshStandardMaterial({ map: tex('assets/konfig/rinde.webp', 1, 3), color: '#8a7a68', roughness: 0.95 });
+  const tm = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.7, 1, 1, 8), bark, trunks.length);
+  trunks.forEach(([a, b, r], i) => { const d = b.clone().sub(a), l = d.length(); q.setFromUnitVectors(V(0, 1, 0), d.normalize()); m4.compose(a.clone().add(b).multiplyScalar(0.5), q, V(r, l, r)); tm.setMatrixAt(i, m4); });
+  tm.castShadow = true; tm.receiveShadow = true; scene.add(tm);
+  // Baumscheiben auf dem Gehweg
+  const pit = new THREE.MeshStandardMaterial({ color: '#4b3a2a', roughness: 1 });
+  TREES.filter(t => t[1] < 0).forEach(([x, z]) => slab(1.6, 1.6, pit, x, 0.004, z, 0.01));
+})();
+const CARS = ['kompakt', 'kombi', 'limousine', 'suv', 'taxi', 'transporter'];
+const PAINT = ['#16181c', '#e8e8e6', '#7d8288', '#2b3a5c', '#7a1d18', '#3c4a3a', '#c9c2b2', '#101113'];
+const traffic = [];
+let carProtos = {};
+Promise.all(CARS.concat(['bus']).map(n => new Promise(res => gltf.load(`assets/konfig/autos/${n}.glb`, g => { carProtos[n] = g.scene; res(); }, undefined, res)))).then(() => {
+  const mk = (n, i) => {
+    const p = carProtos[n] || carProtos.kompakt; const c = p.clone(true);
+    c.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; if (/lack/i.test(o.material.name) && n !== 'taxi' && n !== 'bus') { o.material = o.material.clone(); o.material.color.set(PAINT[i % PAINT.length]); o.material.metalness = 0.6; o.material.roughness = 0.25; } } });
+    const bb = new THREE.Box3().setFromObject(c), sz = bb.getSize(new THREE.Vector3());
+    const wrap = new THREE.Group(); c.position.y -= bb.min.y; if (sz.z > sz.x) c.rotation.y = Math.PI / 2; wrap.add(c); scene.add(wrap); return wrap;
+  };
+  // geparkt am gegenüberliegenden Rand, fahrend auf zwei Spuren
+  let i = 0; for (let x = -54; x < 56; x += 5.8 + (i % 3) * 0.6) { if (Math.abs(x) < 3) { x += 2; } const w = mk(CARS[i % CARS.length], i + 3); w.position.set(x, -0.12, -13.3); w.rotation.y = (i % 2) * Math.PI; i++; }
+  for (let k = 0; k < 9; k++) { const dir = k % 2 ? -1 : 1, n = k === 4 ? 'bus' : CARS[(k * 2) % CARS.length]; const w = mk(n, k);
+    traffic.push({ w, dir, z: dir > 0 ? -8.0 : -11.9, x: -70 + k * 17 + Math.random() * 6, v: (n === 'bus' ? 7 : 9.5) + Math.random() * 2.5 }); }
+  needs = true;
+});
+function updateTraffic(dt) {
+  for (const t of traffic) { t.x += t.dir * t.v * dt; if (t.x > 80) t.x = -80; if (t.x < -80) t.x = 80; t.w.position.set(t.x, -0.12, t.z); t.w.rotation.y = t.dir > 0 ? 0 : Math.PI; }
+}
 
 const house = new THREE.Group(); scene.add(house);
 const HW = HOUSE.x1 - HOUSE.x0, HD = HOUSE.d, HE = HOUSE.eave;
@@ -118,6 +234,13 @@ const flatMat = new THREE.MeshStandardMaterial({ color: '#3b3d42', roughness: 0.
   }
   house.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
 })();
+// Detailliertes Haus aus Blender (echte Fenster, Tür, Stuck, Mansarde). Solange es lädt, steht das einfache Haus.
+gltf.load('assets/konfig/haus.glb?v=2', g => {
+  const old = [...house.children]; old.forEach(o => house.remove(o));
+  g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { m.side = THREE.FrontSide; if (m.map) m.map.anisotropy = 8; }); } });
+  house.add(g.scene); if (current) house.traverse(o => { if (/schorn|chimney|kamin/i.test(o.name)) o.visible = current.id !== 'dach'; });
+  applyXray(); needs = true;
+}, undefined, () => {});
 const hall = new THREE.Group(); scene.add(hall); hall.visible = false;
 (function buildHall() { // offene Halle für das Raumgerüst
   const cm = new THREE.MeshStandardMaterial({ color: '#8f8d88', roughness: 0.92 });
@@ -312,9 +435,9 @@ const BUILD = {
     for (const [a, b] of [[0, 1], [3, 0], [2, 3]]) { const [xa, za] = C[a], [xb, zb] = C[b]; for (const h of [0.5, 1]) k.tube(V(xa, yt + h, za), V(xb, yt + h, zb), 'Geländer', 0.97); }
   },
   dach(k) {
-    facadeRun(k, -3 * BW, 6, 8, 0, -1, 0, 0.55, { ladder: 1 });
-    facadeRun(k, -3 * BW, 6, 8, HD, 1, 0.08, 0.6, { ladder: 4 });
-    const yb = 8 * LH + 1.0, zf = -GAP - DEP, zb = HD + GAP + DEP, span = zb - zf, rise = 3.2;
+    facadeRun(k, -3 * BW, 6, DACH_LV, 0, -1, 0, 0.55, { ladder: 1 });
+    facadeRun(k, -3 * BW, 6, DACH_LV, DACH_ZB, 1, 0.08, 0.6, { ladder: 4, noAnchor: true });
+    const yb = DACH_LV * LH + 1.0, zf = -GAP - DEP, zb = DACH_ZB + GAP + DEP, span = zb - zf, rise = DACH_RISE;
     for (let i = 0; i <= 6; i++) { // Fachwerkbinder über die ganze Tiefe
       const x = -3 * BW + i * BW, t = 0.62 + i * 0.035, mid = (zf + zb) / 2;
       const top = z => yb + rise * (1 - Math.abs(z - mid) / (span / 2));
@@ -336,7 +459,7 @@ const BUILD = {
 /* ---------- Plane für das Wetterschutzdach ---------- */
 const tarpMat = new THREE.MeshStandardMaterial({ color: '#f4f2ec', roughness: 0.75, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
 const tarp = (() => {
-  const zf = -GAP - DEP - 0.1, zb = HD + GAP + DEP + 0.1, yb = 8 * LH + 1.05, rise = 3.25, x0 = -3 * BW - 0.2, x1 = 3 * BW + 0.2, zm = (zf + zb) / 2;
+  const zf = -GAP - DEP - 0.1, zb = DACH_ZB + GAP + DEP + 0.1, yb = DACH_LV * LH + 1.05, rise = DACH_RISE + 0.05, x0 = -3 * BW - 0.2, x1 = 3 * BW + 0.2, zm = (zf + zb) / 2;
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute([x0, yb, zf, x1, yb, zf, x1, yb + rise, zm, x0, yb + rise, zm, x0, yb, zb, x1, yb, zb], 3));
   g.setIndex([0, 1, 2, 0, 2, 3, 3, 2, 5, 3, 5, 4]); g.computeVertexNormals();
@@ -353,7 +476,7 @@ function select(id, animate = true) {
   if (group) { scene.remove(group); group.traverse(o => { if (o.isInstancedMesh) { o.material.dispose(); o.dispose(); } }); }
   group = new THREE.Group(); scene.add(group); kit = new Kit(); BUILD[ty.id](kit); kit.finish(group);
   hall.visible = ty.id === 'raum'; house.visible = ty.id !== 'raum'; tarp.visible = ty.id === 'dach';
-  house.traverse(o => { if (o.userData.chimney) o.visible = ty.id !== 'dach'; });
+  house.traverse(o => { if (o.userData.chimney || /schorn|chimney|kamin/i.test(o.name)) o.visible = ty.id !== 'dach'; });
   const c = ty.cam; camPosGoal.set(c[0], c[1], c[2]); camTgtGoal.set(c[3], c[4], c[5]); userOrbit = { az: 0, el: 0, zoom: 1 };
   prog = animate && !reduce ? 0 : 1; target = 1; playing = animate && !reduce; t0 = performance.now();
   applyXray(); updateUI(); needs = true;
@@ -362,8 +485,11 @@ function select(id, animate = true) {
 }
 
 function applyXray() {
-  for (const m of [wallFront, wallSide, roofMat, flatMat]) { m.opacity = xray ? 0.16 : 1; m.depthWrite = !xray; }
-  house.traverse(o => { if (o.isMesh && o.material !== wallFront && o.material !== wallSide && o.material !== roofMat && o.material !== flatMat) { o.material.opacity = xray ? 0.16 : 1; o.material.depthWrite = !xray; } });
+  const seen = new Set();
+  house.traverse(o => { if (!o.isMesh) return; (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => {
+    if (seen.has(m)) return; seen.add(m);
+    if (m.userData.op0 === undefined) { m.userData.op0 = m.opacity; m.userData.tr0 = m.transparent; }
+    m.transparent = xray || m.userData.tr0; m.opacity = xray ? 0.14 : m.userData.op0; m.depthWrite = !xray; m.needsUpdate = true; }); });
   if (!kit) return;
   for (const m of kit.meshes) { m.userData.list.forEach((it, i) => m.setColorAt(i, new THREE.Color(xray ? (PARTS[it.label]?.col || '#fff') : '#ffffff'))); m.instanceColor.needsUpdate = true; }
   const leg = document.getElementById('legend'); leg.hidden = !xray;
@@ -439,6 +565,7 @@ function frame(now) {
   if (playing) { prog = clamp((now - t0) / 1000 / 6.5, 0, 1); if (prog >= 1) playing = false; needs = true; }
   camPos.lerp(camPosGoal, 1 - Math.pow(0.02, dt)); camTgt.lerp(camTgtGoal, 1 - Math.pow(0.02, dt));
   if (camPos.distanceTo(camPosGoal) > 0.01) needs = true;
+  if (traffic.length && !document.hidden) { updateTraffic(dt); needs = true; }
   if (!needs) return; needs = false;
   // Kamera um das Ziel drehen
   const off = camPos.clone().sub(camTgt); const r = off.length() * userOrbit.zoom;

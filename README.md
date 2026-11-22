@@ -3,6 +3,11 @@
 Vorschau der neuen Website für die Neumann Gerüstbau GmbH, Berlin.
 Statische Seite ohne Build: HTML, CSS, JavaScript. Die Scroll-Animation besteht aus 121 Einzelbildern in `assets/frames`.
 
+## Version 9: Konfigurator mit detailliertem Haus und Umgebung (22.11.2026)
+- assets/konfig/haus.glb: Gründerzeithaus aus Blender (Blender Agent, Skript 08_Blender/haus_web/haus_web.py), echte 3D Fenster, Tür, Stuck, Mansarde, 5,8 MB, 52.000 Dreiecke, Texturen Poly Haven CC0.
+- Umgebung im Browser: Sky (three.js), Streiflicht von links mit Schatten, Gehweg, Straße, Rasen, Hecken, Nachbarhäuser, 20 Bäume aus Blattbüscheln (Instanzen), geparkte und fahrende Autos (Earth 3D Modelle, meshopt).
+- Neue Vendor Dateien: assets/vendor/jsm (GLTFLoader, BufferGeometryUtils, Sky, meshopt_decoder) für three r160.
+
 ## Version 8: drei interaktive Seiten (22.11.2026)
 - geruestarten.html: 3D Konfigurator (three.js, js/konfigurator.js) mit sechs Gerüstarten (Fassade, Roll, Hänge, Raum, Treppenturm, Wetterschutzdach), animiertem Aufbau, Röntgenblick mit Bauteil Legende, Explosionsansicht. Gerüste aus echten Maßen (Feld 2,57 m, Lage 2 m, Rohr 48,3 mm).
 - projekt.html: Gerüst Rechner (Richtwerte, Anfrage per Mail vorausgefüllt), Foto Vorschau ohne Server (vier Eckpunkte, perspektivische Abbildung, Foto bleibt im Browser), Baustellen Karte Berlin (Bezirksgrenzen CC BY, js/karte_daten.js, Lage der Projekte ungefähr).
