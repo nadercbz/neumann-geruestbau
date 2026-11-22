@@ -10,14 +10,15 @@ var pad=function(n,l){n=String(n);while(n.length<l)n='0'+n;return n};
 // Abbau mit Rückfahrt der Kamera. Es wird immer genau ein Bild gezeigt, kein Überblenden.
 var F=window.NEUMANN_SEQ, N=F.frames, scrolly=$('#scrolly'), stage=$('.stage'), canvas=$('#seq'), ctx=canvas.getContext('2d');
 var mobile=window.matchMedia('(max-width:860px)'), dir=mobile.matches?'m':'d';
-var A0=0.03, A1=0.44, B1=0.62, C1=0.95; // Aufbau, Sanierung, Abbau (Anteile der Scrollstrecke)
+var Z0=0.012, Z1=0.2, A1=0.5, B1=0.66, C1=0.95; // Startansicht, Anflug von oben, Aufbau, Sanierung, Abbau (Anteile der Scrollstrecke)
 var phases=$$('.phases li').map(function(el){return{el:el,a:+el.dataset.a,b:+el.dataset.b,hero:el.classList.contains('is-hero')}});
 var hero=$('.hero'), meterNum=$('#meterNum'), meterBar=$('#meterBar'), meterPct=$('#meterPct'), cue=$('#scrollcue'), loader=$('#loader'), loaderBar=$('#loader i'), nav=$('#nav');
 var V='?v='+F.v, cur=0, target=0, needs=true;
 function set(prefix,n){return{p:prefix,len:n,img:new Array(n),ok:new Array(n),n:0}}
-var ND=F.dframes, B=set('b',N), Dn=set('d',ND), plateOld=new Image(), plateNew=new Image(), over=new Image(), statics=0;
+var NA=F.aframes, AF=set('a',NA), ND=F.dframes, B=set('b',N), Dn=set('d',ND), plateOld=new Image(), plateNew=new Image(), over=new Image(), statics=0;
+var city=new Image(), cityOk=false, live=false;
 function order(n){var seen={},out=[0];seen[0]=1;[16,8,4,2,1].forEach(function(s){for(var i=0;i<n;i+=s){if(!seen[i]){seen[i]=1;out.push(i)}}});return out}
-var queue=order(N).map(function(i){return[B,i]}), active=0, total=N+ND+3, done=0, second=false;
+var queue=order(NA).map(function(i){return[AF,i]}).concat(order(N).map(function(i){return[B,i]})), active=0, total=NA+N+ND+4, done=0, second=false;
 function progress(){done++;loaderBar.style.width=(done/total*100)+'%';if(done>=total)loader.classList.add('is-done')}
 function pump(){
   while(active<6&&queue.length){(function(job){
@@ -33,21 +34,39 @@ function loadRest(){
   plateOld.src='assets/seq/alt_'+dir+'.webp'+V; plateNew.src='assets/seq/neu_'+dir+'.webp'+V; over.src='assets/seq/'+dir+'/g.webp'+V;
   queue=queue.concat([ND-1].concat(order(ND).reverse()).map(function(i){return[Dn,i]}));pump();
 }
+city.onload=function(){cityOk=true;needs=true;progress()};city.onerror=progress;city.src='assets/seq/stadt_'+dir+'.webp'+V;
+if(window.NeumannVerkehr&&!reduce){ // lebender Verkehr in der Startansicht
+  fetch('assets/verkehr/verkehr.json'+V).then(function(r){return r.json()}).then(function(j){
+    var at=new Image();at.onload=function(){NeumannVerkehr.init(j.data,at,j.atlas);live=true;needs=true};at.src='assets/verkehr/atlas.webp'+V;
+  }).catch(function(){});
+}
 function nearest(S,i){var L=S.len;if(S.ok[i])return i;for(var d=1;d<L;d++){if(i-d>=0&&S.ok[i-d])return i-d;if(i+d<L&&S.ok[i+d])return i+d}return -1}
 function size(){var dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(stage.clientWidth*dpr);canvas.height=Math.round(stage.clientHeight*dpr);needs=true}
 var T={s:1,dx:0,dy:0,w:0,h:0};
-function layout(iw,ih){
+function layout(iw,ih,fc){
   var cw=canvas.width,ch=canvas.height;
-  if(mobile.matches){var hh=ch*0.44;T.s=Math.max(cw/iw,hh/ih);T.dx=clamp(cw*0.5-iw*T.s*F.focus,cw-iw*T.s,0);T.dy=ch*0.1}
+  if(mobile.matches){var hh=ch*0.44;T.s=Math.max(cw/iw,hh/ih);T.dx=clamp(cw*0.5-iw*T.s*(fc==null?F.focus:fc),cw-iw*T.s,0);T.dy=ch*0.1}
   else{T.s=Math.max(cw/iw,ch/ih);T.dx=(cw-iw*T.s)/2;T.dy=(ch-ih*T.s)*0.62}
   T.w=iw*T.s;T.h=ih*T.s;
 }
-function draw(im){layout(im.naturalWidth,im.naturalHeight);ctx.drawImage(im,T.dx,T.dy,T.w,T.h)}
+function draw(im,fc){layout(im.naturalWidth,im.naturalHeight,fc);ctx.drawImage(im,T.dx,T.dy,T.w,T.h)}
 function render(){
   var cw=canvas.width,ch=canvas.height,fp=cur;
   ctx.fillStyle='#0c0d10';ctx.fillRect(0,0,cw,ch);
+  if(fp<Z1){ // Startansicht von oben mit lebendem Verkehr, dann Sturzflug bis vor das Haus
+    var fa=F.afocus||0.5;
+    if(fp<Z0&&cityOk){
+      var k=fp/Z0;draw(city,fa);
+      var a0=AF.ok[0]?AF.img[0]:null;if(a0&&k>0){ctx.globalAlpha=k;ctx.drawImage(a0,T.dx,T.dy,T.w,T.h);ctx.globalAlpha=1}
+      if(live)NeumannVerkehr.draw(ctx,T,1-k);
+      return{lv:0,ph:'a',i:0};
+    }
+    var u=Math.max(0,(fp-Z0)/(Z1-Z0)),ai=nearest(AF,Math.round(u*(NA-1)));
+    if(ai<0){if(cityOk)draw(city,fa);return{lv:0,ph:'a',i:0}}
+    draw(AF.img[ai],fa+(F.focus-fa)*Math.pow(ai/(NA-1),3));return{lv:0,ph:'a',i:ai};
+  }
   if(fp<A1||statics<3&&fp<B1){ // Aufbau mit Kamerafahrt
-    var bi=nearest(B,Math.round(fp<A0?0:Math.min(1,(fp-A0)/(A1-A0))*(N-1)));if(bi<0)return null;
+    var bi=nearest(B,Math.round(Math.min(1,(fp-Z1)/(A1-Z1))*(N-1)));if(bi<0)return null;
     draw(B.img[bi]);return{lv:bi/(N-1)*F.levels,ph:'b',i:bi};
   }
   if(fp<B1&&statics===3){ // Standzeit: Sanierung von oben nach unten mit harter Kante
@@ -61,7 +80,7 @@ function render(){
   if(di<0){var b2=nearest(B,N-1);if(b2>=0)draw(B.img[b2]);return{lv:F.levels,ph:'s',i:-1}}
   draw(Dn.img[di]);var bf=Math.min(N-1,di*2);return{lv:bf/(N-1)*F.levels,ph:t<1?'d':'e',i:bf};
 }
-var lastFp=-1;
+var lastFp=-1, stageOn=true;
 function onScroll(){
   var r=scrolly.getBoundingClientRect(),total=r.height-window.innerHeight,p=clamp(-r.top/total,0,1),fp=clamp(p/0.96,0,1);
   target=fp;
@@ -74,10 +93,12 @@ function onScroll(){
   var e=clamp((p-0.94)/0.06,0,1); // weicher Übergang in den nächsten Abschnitt
   stage.style.transform=e?'scale('+(1-e*0.05)+')':'';stage.style.borderRadius=e?(e*18)+'px':'';
   nav.classList.toggle('is-solid',r.bottom<80);
+  stageOn=r.bottom>0;
   if(window.NeumannSound)NeumannSound.visible(r.bottom>window.innerHeight*0.3);
 }
 function tick(){
   var d=target-cur;if(Math.abs(d)>0.0004){cur+=d*(reduce?1:0.16);needs=true}else if(cur!==target){cur=target;needs=true}
+  if(live&&cur<Z0&&stageOn)needs=true;
   if(needs){needs=false;var st=render();
     if(st){if(window.NeumannSound)NeumannSound.update(st.ph,st.i);var lv=st.lv;meterNum.textContent=pad(Math.round(lv),2);
       if(mobile.matches){meterBar.style.width=(lv/F.levels*100)+'%';meterBar.style.height=''}else{meterBar.style.height=(lv/F.levels*100)+'%';meterBar.style.width=''}
