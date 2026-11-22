@@ -12,7 +12,9 @@
 <meta property="og:image" content="assets/img/og.jpg">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/style.css?v=14">
+<link rel="preload" as="image" href="assets/seq/stadt_d.webp?v=11" media="(min-width: 861px)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/seq/stadt_m.webp?v=11" media="(max-width: 860px)" fetchpriority="high">
+<link rel="stylesheet" href="css/style.css?v=15">
 <script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
 </head>
 <body>
@@ -98,7 +100,7 @@
     <h2 class="film__title split">Lage für Lage. Seit 1990.</h2>
   </div>
   <div class="film__frame" id="filmFrame">
-    <video id="filmVideo" preload="metadata" playsinline poster="assets/film/poster.jpg?v=5">
+    <video id="filmVideo" preload="none" playsinline data-poster="assets/film/poster.webp?v=6">
       <source src="assets/film/neumann_imagefilm.mp4?v=4" type="video/mp4">
     </video>
     <button class="film__play" id="filmPlay" type="button" aria-label="Imagefilm abspielen">
@@ -151,7 +153,7 @@
     <a class="explain__more" href="geruestarten.html">Selbst ausprobieren: Gerüstarten in 3D <i class="arr"></i></a>
   </div>
   <div class="film__frame explain__frame">
-    <video id="explainVideo" preload="none" playsinline poster="assets/film/erklaerfilm_poster.jpg?v=1">
+    <video id="explainVideo" preload="none" playsinline data-poster="assets/film/erklaerfilm_poster.webp?v=2">
       <source src="assets/film/neumann_erklaerfilm.mp4?v=1" type="video/mp4">
     </video>
     <button class="film__play" id="explainPlay" type="button" aria-label="Erklärfilm abspielen">
@@ -305,8 +307,7 @@
 <script src="js/frames.js?v=11"></script>
 <script src="assets/vendor/lenis.min.js"></script>
 <script src="js/verkehr.js?v=11"></script>
-<script src="js/main.js?v=12"></script>
+<script src="js/main.js?v=13"></script>
 <script src="js/sound.js?v=11"></script>
-<script type="module" src="js/scene3d.js?v=10"></script>
 </body>
 </html>

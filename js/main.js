@@ -34,12 +34,16 @@ function loadRest(){
   plateOld.src='assets/seq/alt_'+dir+'.webp'+V; plateNew.src='assets/seq/neu_'+dir+'.webp'+V; over.src='assets/seq/'+dir+'/g.webp'+V;
   queue=queue.concat([ND-1].concat(order(ND).reverse()).map(function(i){return[Dn,i]}));pump();
 }
-city.onload=function(){cityOk=true;needs=true;progress()};city.onerror=progress;city.src='assets/seq/stadt_'+dir+'.webp'+V;
-if(window.NeumannVerkehr&&!reduce){ // lebender Verkehr in der Startansicht
+// Reihenfolge: erst das Startbild (per preload schon unterwegs), dann Verkehr und Scroll Bilder, damit nichts um die Leitung konkurriert
+var started=false;
+function startLoads(){if(started)return;started=true;pump();loadTraffic()}
+city.onload=function(){cityOk=true;needs=true;progress();startLoads()};city.onerror=function(){progress();startLoads()};city.src='assets/seq/stadt_'+dir+'.webp'+V;
+setTimeout(startLoads,2500);
+function loadTraffic(){if(window.NeumannVerkehr&&!reduce){ // lebender Verkehr in der Startansicht
   fetch('assets/verkehr/verkehr.json'+V).then(function(r){return r.json()}).then(function(j){
     var at=new Image();at.onload=function(){NeumannVerkehr.init(j.data,at,j.atlas);live=true;needs=true};at.src='assets/verkehr/atlas.webp'+V;
   }).catch(function(){});
-}
+}}
 function nearest(S,i){var L=S.len;if(S.ok[i])return i;for(var d=1;d<L;d++){if(i-d>=0&&S.ok[i-d])return i-d;if(i+d<L&&S.ok[i+d])return i+d}return -1}
 function size(){var dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(stage.clientWidth*dpr);canvas.height=Math.round(stage.clientHeight*dpr);needs=true}
 var T={s:1,dx:0,dy:0,w:0,h:0};
@@ -49,7 +53,8 @@ function layout(iw,ih,fc){
   else{T.s=Math.max(cw/iw,ch/ih);T.dx=(cw-iw*T.s)/2;T.dy=(ch-ih*T.s)*0.62}
   T.w=iw*T.s;T.h=ih*T.s;
 }
-function draw(im,fc){layout(im.naturalWidth,im.naturalHeight,fc);ctx.drawImage(im,T.dx,T.dy,T.w,T.h)}
+var drawn=false;
+function draw(im,fc){layout(im.naturalWidth,im.naturalHeight,fc);ctx.drawImage(im,T.dx,T.dy,T.w,T.h);if(!drawn){drawn=true;stage.classList.add('is-drawn')}}
 function render(){
   var cw=canvas.width,ch=canvas.height,fp=cur;
   ctx.fillStyle='#0c0d10';ctx.fillRect(0,0,cw,ch);
@@ -83,7 +88,7 @@ function render(){
 var lastFp=-1, stageOn=true;
 function onScroll(){
   var r=scrolly.getBoundingClientRect(),total=r.height-window.innerHeight,p=clamp(-r.top/total,0,1),fp=clamp(p/0.96,0,1);
-  target=fp;
+  target=fp;if(fp>0.002&&typeof startLoads==='function')startLoads();
   if(fp!==lastFp){
     lastFp=fp;
     phases.forEach(function(s){s.el.classList.toggle('is-on',!s.hero&&fp>=s.a&&fp<s.b)});
@@ -105,7 +110,7 @@ function tick(){
       meterPct.textContent=pad(Math.round(cur*100),3)+' %';}}
   requestAnimationFrame(tick);
 }
-size();onScroll();tick();pump();
+size();onScroll();tick();
 window.addEventListener('scroll',onScroll,{passive:true});
 window.addEventListener('resize',function(){size();onScroll()});
 
@@ -271,4 +276,10 @@ if(ex&&ev&&ep){
   if(fv)fv.addEventListener('play',function(){if(!ev.paused)ev.pause()});
   if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting&&!ev.paused)ev.pause()})},{threshold:0.2}).observe(ex)}
 }
+/* ---------- Später laden: 3D Szenen (three.js) und Vorschaubilder der Filme erst kurz vor dem Sichtbarwerden ---------- */
+var lazyOnce=function(el,margin,fn){if(!el)return;if(!('IntersectionObserver' in window)){fn();return}
+  var o=new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting})){o.disconnect();fn()}},{rootMargin:margin});o.observe(el)};
+var s3d=false,load3d=function(){if(s3d)return;s3d=true;import(new URL('js/scene3d.js?v=10',document.baseURI).href).catch(function(){})};
+lazyOnce($('#system'),'1200px 0px',load3d);lazyOnce($('#kontakt'),'1200px 0px',load3d);
+$$('video[data-poster]').forEach(function(v){lazyOnce(v,'900px 0px',function(){v.poster=v.dataset.poster})});
 })();

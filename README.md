@@ -7,6 +7,8 @@ Statische Seite ohne Build: HTML, CSS, JavaScript. Die Scroll-Animation besteht 
 - Neuer Abschnitt `#erklaert` nach dem Drahtmodell: Erklärfilm 1:43 mit Kapiteln (Aufbau, Gerüstarten, Prüfung), die per Klick an die Stelle springen. Film `assets/film/neumann_erklaerfilm.mp4`, Bild `assets/film/erklaerfilm_poster.jpg`. Spielt einer der beiden Filme, pausiert der andere.
 - Der Film ist komplett aus dem 3D Konfigurator gerendert: Filmmodus `geruestarten.html?film` (nur zum Aufnehmen, Steuerung `window.NeumannFilm`), Drehplan und Aufnahme in `../13_Erklaerfilm/werkzeuge/` (`plan.mjs`, `aufnahme.mjs`), Schnitt mit Stimme, Musik und Geräuschen in `../13_Erklaerfilm/video/` (HyperFrames, `python3 bauen.py`).
 - Konfigurator: Fußspindel jetzt grün (#10b981), damit sie sich von den anderen Bauteilen abhebt.
+- Erklärfilm: Anfang neu gesprochen (deutsche Aussprache statt englischem Akzent), Rest der Stimme unverändert.
+- Schneller Start der Startseite: Startbild per `preload` mit hoher Priorität, sofort als Hintergrund der Bühne (unscharfer Platzhalter inline in `style.css`, darüber das volle Bild, deckungsgleich mit dem Canvas). Scroll Bilder und Verkehr laden erst nach dem Startbild, three.js (`scene3d.js`) erst kurz vor dem Drahtmodell, Filmvorschauen (`data-poster`, WebP) erst kurz vor dem Film, Videos mit `preload="none"`. Gemessen (lokal, gedrosselt): Startbild bei 9 Mbit/s nach 0,6 s statt 1,9 s, bei 3 Mbit/s nach 1,0 s statt 3,3 s, Platzhalter schon vorher. Messwerkzeug `../13_Erklaerfilm/werkzeuge/ladezeit.mjs`, Bilder in `../12_Interaktiv/ladezeit/`.
 
 ## Version 10: Konfigurator in echter Berliner Straße (22.11.2026)
 - Umgebung komplett aus Blender (zwei Blender Agenten, je mit gebackener AO auf der zweiten UV):
