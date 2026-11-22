@@ -13,7 +13,7 @@ window.NeumannLoad={t:0,set:function(p){this.t=Math.max(this.t,p)},finish:functi
 setTimeout(function(){if(d.classList.contains('is-wait')){d.classList.remove('is-wait');d.classList.add('is-ready')}},10000)})();</script>
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/style.css?v=16">
+<link rel="stylesheet" href="css/style.css?v=18">
 <link rel="stylesheet" href="css/unterseiten.css?v=8">
 <script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
 </head>
@@ -55,6 +55,7 @@ requestAnimationFrame(f)})();</script>
     <a class="nav__menu-cta" href="index.html#kontakt"><i>06</i>Kontakt</a>
   </nav>
   <div class="nav__right">
+    <button class="nav__show" type="button" data-showroom aria-haspopup="dialog" aria-controls="showroom" aria-expanded="false"><span class="nav__show-ic" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="nav__show-t">Showroom</span></button>
     <button class="nav__menu" id="burger" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menu"><span>Menü</span><b><i></i><i></i></b></button>
     <a class="nav__cta" href="index.html#kontakt">Anfrage</a>
   </div>
@@ -93,5 +94,6 @@ b.addEventListener('click',function(){set(b.getAttribute('aria-expanded')!=='tru
 m.addEventListener('click',function(e){if(e.target.closest('a'))set(false)})})();
 </script>
 <script type="module" src="js/konfigurator.js?v=26"></script>
+<script src="js/showroom.js?v=1" defer></script>
 </body>
 </html>

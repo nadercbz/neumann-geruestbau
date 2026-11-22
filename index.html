@@ -18,7 +18,7 @@ setTimeout(function(){if(d.classList.contains('is-wait')){d.classList.remove('is
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="assets/seq/stadt_d.webp?v=11" media="(min-width: 861px)" fetchpriority="high">
 <link rel="preload" as="image" href="assets/seq/stadt_m.webp?v=11" media="(max-width: 860px)" fetchpriority="high">
-<link rel="stylesheet" href="css/style.css?v=16">
+<link rel="stylesheet" href="css/style.css?v=18">
 <script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
 </head>
 <body>
@@ -64,6 +64,7 @@ requestAnimationFrame(f)})();</script>
     <a class="nav__menu-cta" href="#kontakt"><i>08</i>Kontakt</a>
   </nav>
   <div class="nav__right">
+    <button class="nav__show" type="button" data-showroom aria-haspopup="dialog" aria-controls="showroom" aria-expanded="false"><span class="nav__show-ic" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="nav__show-t">Showroom</span></button>
     <button class="nav__menu" id="burger" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menu"><span>Menü</span><b><i></i><i></i></b></button>
     <a class="nav__cta" href="#kontakt">Anfrage</a>
   </div>
@@ -333,11 +334,12 @@ requestAnimationFrame(f)})();</script>
 
 <div class="lightbox" id="lightbox" hidden><button aria-label="Schließen">×</button><figure><img alt=""><figcaption class="mono"></figcaption></figure></div>
 
-<script src="js/data.js"></script>
+<script src="js/data.js?v=2"></script>
 <script src="js/frames.js?v=12"></script>
 <script src="assets/vendor/lenis.min.js"></script>
 <script src="js/verkehr.js?v=11"></script>
 <script src="js/main.js?v=14"></script>
 <script src="js/sound.js?v=11"></script>
+<script src="js/showroom.js?v=1" defer></script>
 </body>
 </html>

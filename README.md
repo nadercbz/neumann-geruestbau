@@ -3,6 +3,10 @@
 Vorschau der neuen Website für die Neumann Gerüstbau GmbH, Berlin.
 Statische Seite ohne Build: HTML, CSS, JavaScript. Die Scroll-Animation besteht aus 121 Einzelbildern in `assets/frames`.
 
+## Version 13: Showroom mit allen Referenzen (22.11.2026)
+- Knopf „Showroom“ oben rechts auf Startseite, Gerüstarten, Ihr Projekt und Sicherheit (vor „Anfrage“, am Handy neben „Menü“). Öffnet ein Glas Overlay: die Seite dahinter wird weich gezeichnet und abgedunkelt, darüber alle 56 Referenzfotos aus 51 Projekten als Kachelwand mit Filter nach Kategorie, Großansicht mit Blättern (Pfeile, Pfeiltasten, Wischen), Escape schließt, Direktlink `#showroom`, Zurück Taste schließt.
+- Vorbild: Showroom von Social Bites. Code in `js/showroom.js` (eigenständig, lädt `js/data.js` nach, wenn die Seite es nicht hat), Stil in `style.css` unter „Showroom“. Seitenverhältnis der Fotos steht in `js/data.js` (Feld `r`).
+
 ## Version 12: Ladebildschirm, AVIF Scroll Bilder, leichtere 3D Modelle (22.11.2026)
 - Ladebildschirm auf Startseite und 3D Seite (Inline in `index.html` und `geruestarten.html`, Stil in `style.css` unter „Ladebildschirm“): das Neumann Logo zeichnet sich Linie für Linie mit dem Ladefortschritt, der Schriftzug wischt ein, dann gleitet der Bildschirm nach oben weg. Mindestens 1,2 s, beim zweiten Besuch in der Sitzung 0,45 s, Notausgang nach 10 s. Im Filmmodus (`?film`) aus.
 - Startseite: Scroll Sequenz als AVIF (`assets/seq/da` Rechner 1920 px, `assets/seq/ma` Handy 1280 px, gebaut mit `../12_Interaktiv/ladezeit/avif_bauen.sh`), 66 MB auf 20 MB bzw. 32 MB auf 9 MB. Alte WebP bleiben als Rückfall für Browser ohne AVIF. Der Ladebildschirm wartet auf Startbild, Tafeln, Verkehr, Schrift und jedes 4. Bild über die ganze Strecke; danach laden der Rest in Scroll Reihenfolge, 3D Szenen, Filmvorschauen und Referenzbilder im Hintergrund.
