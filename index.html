@@ -12,7 +12,7 @@
 <meta property="og:image" content="assets/img/og.jpg">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/style.css?v=11">
+<link rel="stylesheet" href="css/style.css?v=13">
 <script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
 </head>
 <body>
@@ -22,13 +22,14 @@
 <header class="nav" id="nav">
   <a class="nav__logo" href="#top" aria-label="Neumann Gerüstbau GmbH, zur Startseite"><span class="logo"></span></a>
   <nav class="nav__links" id="menu" aria-label="Hauptmenü">
-    <a href="#film"><i>01</i>Film</a>
-    <a href="#system"><i>02</i>System</a>
-    <a href="#leistungen"><i>03</i>Leistungen</a>
-    <a href="#referenzen"><i>04</i>Projekte</a>
-    <a href="#unternehmen"><i>05</i>Unternehmen</a>
-    <a href="#karriere"><i>06</i>Karriere</a>
-    <a class="nav__menu-cta" href="#kontakt"><i>07</i>Kontakt</a>
+    <a href="geruestarten.html" class="nav__new"><i>01</i>Gerüstarten</a>
+    <a href="projekt.html" class="nav__new"><i>02</i>Ihr Projekt</a>
+    <a href="sicherheit.html" class="nav__new"><i>03</i>Sicherheit</a>
+    <a href="#leistungen"><i>04</i>Leistungen</a>
+    <a href="#referenzen"><i>05</i>Projekte</a>
+    <a href="#unternehmen"><i>06</i>Unternehmen</a>
+    <a href="#karriere"><i>07</i>Karriere</a>
+    <a class="nav__menu-cta" href="#kontakt"><i>08</i>Kontakt</a>
   </nav>
   <div class="nav__right">
     <button class="nav__menu" id="burger" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menu"><span>Menü</span><b><i></i><i></i></b></button>
@@ -77,6 +78,16 @@
     </div>
     <button class="snd" id="snd" type="button" aria-pressed="false" aria-label="Baustellen-Geräusche ein- oder ausschalten"><i><b></b><b></b><b></b><b></b></i><span>Ton aus</span></button>
     <div class="loader" id="loader"><i></i></div>
+  </div>
+</section>
+
+<!-- ============ ERLEBEN: drei interaktive Seiten ============ -->
+<section class="explore" id="erleben" aria-label="Interaktiv erleben">
+  <p class="mono explore__kicker">Interaktiv erleben</p>
+  <div class="explore__grid">
+    <a class="explore__tile" href="geruestarten.html"><span class="mono">01</span><h2>Gerüstarten in 3D</h2><p>Sechs Gerüste bauen sich vor Ihren Augen auf. Mit Röntgenblick und Explosionsansicht.</p><i class="arr"></i></a>
+    <a class="explore__tile" href="projekt.html"><span class="mono">02</span><h2>Ihr Projekt</h2><p>Gerüst berechnen, am eigenen Haus ansehen und unsere Baustellen auf der Karte entdecken.</p><i class="arr"></i></a>
+    <a class="explore__tile" href="sicherheit.html"><span class="mono">03</span><h2>Sicherheit</h2><p>Vorher und nachher, neun Punkte am Gerüst und wie wir prüfen.</p><i class="arr"></i></a>
   </div>
 </section>
 

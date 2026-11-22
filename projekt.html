@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ihr Projekt: Rechner, Foto Vorschau, Karte | Neumann Gerüstbau GmbH</title>
+<meta name="description" content="Gerüst Rechner für Fläche, Lagen und Material, Foto Vorschau mit Gerüst an Ihrem Haus und alle Baustellen von Neumann Gerüstbau auf der Berlin Karte.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0c0d10">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/style.css?v=13">
+<link rel="stylesheet" href="css/unterseiten.css?v=8">
+</head>
+<body class="sub sub--projekt">
+<header class="nav is-solid" id="nav">
+  <a class="nav__logo" href="index.html" aria-label="Neumann Gerüstbau GmbH, zur Startseite"><span class="logo"></span></a>
+  <nav class="nav__links" id="menu" aria-label="Hauptmenü">
+    <a href="index.html"><i>01</i>Start</a>
+    <a href="geruestarten.html"><i>02</i>Gerüstarten</a>
+    <a href="projekt.html" class="is-active" aria-current="page"><i>03</i>Ihr Projekt</a>
+    <a href="sicherheit.html"><i>04</i>Sicherheit</a>
+    <a href="index.html#referenzen"><i>05</i>Referenzen</a>
+    <a class="nav__menu-cta" href="index.html#kontakt"><i>06</i>Kontakt</a>
+  </nav>
+  <div class="nav__right">
+    <button class="nav__menu" id="burger" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menu"><span>Menü</span><b><i></i><i></i></b></button>
+    <a class="nav__cta" href="index.html#kontakt">Anfrage</a>
+  </div>
+</header>
+
+<main>
+  <section class="p-hero">
+    <p class="mono p-kicker"><span class="pulse"></span> Ihr Projekt</p>
+    <h1>Von der Idee<br>zum Gerüst.</h1>
+    <p class="p-lead">Rechnen Sie Ihr Gerüst grob durch, sehen Sie es an Ihrem eigenen Haus und entdecken Sie, wo wir in Berlin schon gebaut haben.</p>
+    <nav class="p-tabs" aria-label="Werkzeuge">
+      <a href="#rechner"><span class="mono">01</span>Gerüst Rechner</a>
+      <a href="#foto"><span class="mono">02</span>Foto Vorschau</a>
+      <a href="#karte"><span class="mono">03</span>Baustellen Karte</a>
+    </nav>
+  </section>
+
+  <!-- ===== Rechner ===== -->
+  <section class="tool" id="rechner">
+    <header class="tool__head"><p class="mono">01 / Gerüst Rechner</p><h2>Wie viel Gerüst braucht Ihr Haus?</h2></header>
+    <div class="calc">
+      <form class="calc__in" onsubmit="return false">
+        <label class="field"><span class="mono">Gerüstart</span>
+          <select id="r-art"><option value="fassade">Fassadengerüst</option><option value="wetter">Fassadengerüst mit Wetterschutzdach</option><option value="raum">Raumgerüst</option></select></label>
+        <label class="field"><span class="mono">Fassadenlänge <b id="r-len-v"></b></span><input id="r-len" type="range" min="3" max="120" step="1" value="24"></label>
+        <label class="field"><span class="mono">Gerüsthöhe <b id="r-hgt-v"></b></span><input id="r-hgt" type="range" min="3" max="40" step="0.5" value="15"></label>
+        <label class="field"><span class="mono">Nutzung</span>
+          <select id="r-use"><option value="maler">Malerarbeiten, Reinigung</option><option value="putz" selected>Putz, Dämmung, Fenster</option><option value="maurer">Mauerwerk, Naturstein</option></select></label>
+        <label class="field"><span class="mono">Standzeit <b id="r-wk-v"></b></span><input id="r-wk" type="range" min="1" max="52" step="1" value="8"></label>
+        <fieldset class="field"><legend class="mono">Extras</legend>
+          <label class="check"><input type="checkbox" name="r-x" value="netz"> Netz oder Plane</label>
+          <label class="check"><input type="checkbox" name="r-x" value="dach"> Schutzdach über dem Gehweg</label>
+          <label class="check"><input type="checkbox" name="r-x" value="turm"> Treppenturm</label>
+          <label class="check"><input type="checkbox" name="r-x" value="aufzug"> Bauaufzug</label>
+        </fieldset>
+      </form>
+      <div class="calc__out">
+        <svg id="r-svg" class="elev" viewBox="0 0 600 300" role="img" aria-label="Ansicht des berechneten Gerüsts"></svg>
+        <dl id="r-out" class="results"></dl>
+        <p class="note">Richtwerte für eine erste Planung. Den genauen Preis erstellen wir kostenlos nach einer Besichtigung vor Ort.</p>
+        <a class="btn btn--light" id="r-mail" href="#">Angebot mit diesen Werten anfragen</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Foto Vorschau ===== -->
+  <section class="tool" id="foto">
+    <header class="tool__head"><p class="mono">02 / Foto Vorschau</p><h2>Ihr Haus mit Gerüst.</h2>
+      <p>Laden Sie ein Foto Ihrer Fassade hoch und ziehen Sie die vier Punkte auf die Ecken. Das Gerüst legt sich perspektivisch richtig davor. Ihr Foto bleibt auf Ihrem Gerät und wird nirgends hochgeladen.</p></header>
+    <div class="photo">
+      <div class="photo__stage" id="f-stage">
+        <canvas id="f-canvas" width="1600" height="900"></canvas>
+        <div class="photo__empty">
+          <label class="btn btn--light">Foto auswählen<input id="f-file" type="file" accept="image/*" hidden></label>
+          <button class="btn btn--line" id="f-example" type="button">Beispielfoto nehmen</button>
+        </div>
+      </div>
+      <div class="photo__side">
+        <p class="mono" id="f-hint">Tipp: Foto möglichst gerade von vorne.</p>
+        <label class="field"><span class="mono">Fassadenbreite in m</span><input id="f-w" type="number" min="3" max="200" step="0.5" value="15"></label>
+        <label class="field"><span class="mono">Traufhöhe in m</span><input id="f-h" type="number" min="3" max="80" step="0.5" value="15"></label>
+        <label class="check"><input id="f-net" type="checkbox"> Mit Netz oder Plane</label>
+        <label class="btn btn--line">Anderes Foto<input type="file" accept="image/*" hidden onchange="document.getElementById('f-file').files=this.files;document.getElementById('f-file').dispatchEvent(new Event('change'))"></label>
+        <button class="btn btn--light" id="f-dl" type="button">Bild speichern</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Karte ===== -->
+  <section class="tool" id="karte">
+    <header class="tool__head"><p class="mono">03 / Baustellen Karte</p><h2><b id="m-count"></b> Projekte in Berlin und Brandenburg.</h2></header>
+    <div class="map">
+      <div class="map__filter" id="m-filter"></div>
+      <div class="map__view">
+        <svg id="m-svg" class="map__svg" role="img" aria-label="Karte von Berlin mit Referenzprojekten"></svg>
+        <article class="map__card" id="m-card" hidden></article>
+      </div>
+      <p class="note">Bezirksgrenzen: Amt für Statistik Berlin-Brandenburg (CC BY). Lage der Projekte ungefähr.</p>
+    </div>
+  </section>
+
+  <section class="p-cta">
+    <h2>Lieber direkt sprechen?</h2>
+    <p>Beratung und Besichtigung sind kostenlos.</p>
+    <a class="btn btn--light" href="index.html#kontakt">Kontakt aufnehmen</a>
+  </section>
+</main>
+
+<script>
+(function(){var b=document.getElementById('burger'),m=document.getElementById('menu');
+function set(o){m.classList.toggle('is-open',o);b.setAttribute('aria-expanded',o);b.setAttribute('aria-label',o?'Menü schließen':'Menü öffnen');document.body.style.overflow=o?'hidden':''}
+b.addEventListener('click',function(){set(b.getAttribute('aria-expanded')!=='true')});
+m.addEventListener('click',function(e){if(e.target.closest('a'))set(false)})})();
+</script>
+<script src="js/data.js?v=12"></script>
+<script src="js/karte_daten.js?v=1"></script>
+<script src="js/projekt.js?v=3"></script>
+</body>
+</html>

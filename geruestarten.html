@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gerüstarten in 3D | Neumann Gerüstbau GmbH</title>
+<meta name="description" content="Sechs Gerüstarten in 3D erleben: Fassadengerüst, Rollgerüst, Hängegerüst, Raumgerüst, Treppenturm und Wetterschutzdach. Mit Aufbau, Röntgenblick und Explosionsansicht.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0c0d10">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/style.css?v=13">
+<link rel="stylesheet" href="css/unterseiten.css?v=8">
+<script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
+</head>
+<body class="sub sub--konfig">
+<header class="nav is-solid" id="nav">
+  <a class="nav__logo" href="index.html" aria-label="Neumann Gerüstbau GmbH, zur Startseite"><span class="logo"></span></a>
+  <nav class="nav__links" id="menu" aria-label="Hauptmenü">
+    <a href="index.html"><i>01</i>Start</a>
+    <a href="geruestarten.html" class="is-active" aria-current="page"><i>02</i>Gerüstarten</a>
+    <a href="projekt.html"><i>03</i>Ihr Projekt</a>
+    <a href="sicherheit.html"><i>04</i>Sicherheit</a>
+    <a href="index.html#referenzen"><i>05</i>Referenzen</a>
+    <a class="nav__menu-cta" href="index.html#kontakt"><i>06</i>Kontakt</a>
+  </nav>
+  <div class="nav__right">
+    <button class="nav__menu" id="burger" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menu"><span>Menü</span><b><i></i><i></i></b></button>
+    <a class="nav__cta" href="index.html#kontakt">Anfrage</a>
+  </div>
+</header>
+
+<main class="konfig">
+  <canvas id="konfig" aria-label="3D Ansicht des gewählten Gerüsts. Ziehen zum Drehen, Scrollen zum Zoomen."></canvas>
+  <div class="tip" id="tip" hidden></div>
+
+  <aside class="konfig__list">
+    <p class="mono konfig__kicker"><span class="pulse"></span> Gerüstarten in 3D</p>
+    <ol id="types" class="types"></ol>
+  </aside>
+
+  <section class="konfig__card" aria-live="polite">
+    <p class="mono" id="k-idx">01 / 06</p>
+    <h1 id="k-name">Fassadengerüst</h1>
+    <p id="k-text"></p>
+    <dl id="k-facts" class="facts"></dl>
+    <a class="btn btn--light" href="projekt.html">Für mein Projekt berechnen</a>
+  </section>
+
+  <div class="konfig__tools">
+    <button class="btn btn--line" id="k-play" type="button">Aufbau ansehen</button>
+    <button class="btn btn--line toggle" id="k-xray" type="button" aria-pressed="false">Röntgenblick</button>
+    <label class="range"><span class="mono">Explosionsansicht</span><input id="k-expl" type="range" min="0" max="100" value="0"></label>
+    <p class="mono hint">Ziehen dreht · Scrollen zoomt · Bauteil antippen</p>
+  </div>
+  <ul class="legend" id="legend" hidden></ul>
+</main>
+
+<script>
+(function(){var b=document.getElementById('burger'),m=document.getElementById('menu');
+function set(o){m.classList.toggle('is-open',o);b.setAttribute('aria-expanded',o);b.setAttribute('aria-label',o?'Menü schließen':'Menü öffnen');document.body.style.overflow=o?'hidden':''}
+b.addEventListener('click',function(){set(b.getAttribute('aria-expanded')!=='true')});
+m.addEventListener('click',function(e){if(e.target.closest('a'))set(false)})})();
+</script>
+<script type="module" src="js/konfigurator.js?v=5"></script>
+</body>
+</html>

@@ -3,6 +3,13 @@
 Vorschau der neuen Website für die Neumann Gerüstbau GmbH, Berlin.
 Statische Seite ohne Build: HTML, CSS, JavaScript. Die Scroll-Animation besteht aus 121 Einzelbildern in `assets/frames`.
 
+## Version 8: drei interaktive Seiten (22.11.2026)
+- geruestarten.html: 3D Konfigurator (three.js, js/konfigurator.js) mit sechs Gerüstarten (Fassade, Roll, Hänge, Raum, Treppenturm, Wetterschutzdach), animiertem Aufbau, Röntgenblick mit Bauteil Legende, Explosionsansicht. Gerüste aus echten Maßen (Feld 2,57 m, Lage 2 m, Rohr 48,3 mm).
+- projekt.html: Gerüst Rechner (Richtwerte, Anfrage per Mail vorausgefüllt), Foto Vorschau ohne Server (vier Eckpunkte, perspektivische Abbildung, Foto bleibt im Browser), Baustellen Karte Berlin (Bezirksgrenzen CC BY, js/karte_daten.js, Lage der Projekte ungefähr).
+- sicherheit.html: Vorher Nachher Regler (eigene Renderings), Sicherheits Check mit neun Punkten, Zähler, Ablauf, Mitgliedschaften.
+- Startseite: neue Menüpunkte Gerüstarten, Ihr Projekt, Sicherheit und drei Kacheln nach der Scroll Sequenz.
+- Offen vom Kunden: Preise, echte Firmenzahlen, Adressen der Referenzen, Bestätigung der Lastklassen und Sicherheitstexte.
+
 ## Version 7: goldenes Licht, Berliner Dächer, volle Höfe (22.11.2026)
 - Licht nach Naders Referenzbildern: tiefe goldene Sonne (18 Grad), warme Fassaden, kühle tiefe Schatten.
 - Dächer: Berliner Mansarden mit Gauben und dunklem Flachteil, gealterte Ziegel und Schiefer in vielen Varianten, Schornsteinreihen aus Backstein, Dachrinnen, Dachfenster.
