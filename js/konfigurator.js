@@ -60,6 +60,7 @@ const canvas = document.getElementById('konfig');
 const FILM = new URLSearchParams(location.search).has('film');   // Filmmodus: Bild für Bild steuerbar für den Erklärfilm
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: FILM });
 let loaded = 0; const LOADED_ALL = 12;
+let crit = 0; const CRIT_ALL = 4; let fades = [];   // crit: Himmel, Straße, Gebäude, Haus (darauf wartet der Ladebildschirm)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
@@ -76,8 +77,8 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 const loader = new THREE.TextureLoader();
 loader.load('assets/konfig/himmel.webp?v=1', t => {
   t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace;
-  scene.background = t; scene.backgroundIntensity = 1.55; scene.environment = pmrem.fromEquirectangular(t).texture; needs = true; loaded++;
-});
+  scene.background = t; scene.backgroundIntensity = 1.55; scene.environment = pmrem.fromEquirectangular(t).texture; needs = true; loaded++; crit++;
+}, undefined, () => { loaded++; crit++; });
 scene.environmentIntensity = 0.75;
 renderer.toneMappingExposure = 0.62;
 const sun = new THREE.DirectionalLight('#ffd6a6', 4.4);
@@ -127,7 +128,7 @@ function prepEnv(root) {
   });
   return root;
 }
-for (const f of ['strasse_park', 'gebaeude']) gltf.load(`assets/konfig/${f}.glb?v=3`, g => { scene.add(prepEnv(g.scene)); needs = true; loaded++; }, undefined, () => { loaded++; });
+for (const f of ['strasse_park', 'gebaeude']) gltf.load(`assets/konfig/${f}.glb?v=4`, g => { scene.add(prepEnv(g.scene)); needs = true; loaded++; crit++; }, undefined, () => { loaded++; crit++; });
 
 /* ---------- Berliner Skyline am Horizont (Modelle aus Earth 3D) ---------- */
 const SKY_LINE = [ // Name, Höhe in m, x, z (three.js), Drehung
@@ -135,18 +136,18 @@ const SKY_LINE = [ // Name, Höhe in m, x, z (three.js), Drehung
   ['berolinahaus', 32, 455, 1690, 0.5], ['alexanderhaus', 32, 430, 1640, 0.5], ['kaufhaus_alexanderplatz', 38, 360, 1720, 0.4], ['haus_des_reisens', 70, 660, 1730, 0.1],
 ];
 const hazeMix = (m, k) => { m = m.clone(); if (m.color) m.color.lerp(HAZE, k); m.fog = false; m.roughness = 1; m.metalness = 0; return m; };
-SKY_LINE.forEach(([n, h, x, z, r]) => gltf.load(`assets/konfig/skyline/${n}.glb`, g => {
+function loadSkyline() { SKY_LINE.forEach(([n, h, x, z, r]) => gltf.load(`assets/konfig/skyline/${n}.glb`, g => {
   const o = g.scene, bb = new THREE.Box3().setFromObject(o), k = h / Math.max(0.01, bb.max.y - bb.min.y);
   o.scale.setScalar(k); o.position.set(x, -bb.min.y * k, z); o.rotation.y = r;
   o.traverse(c => { if (c.isMesh) { c.material = hazeMix(c.material, 0.52); c.castShadow = c.receiveShadow = false; } });
-  scene.add(o); needs = true; loaded++;
-}, undefined, () => { loaded++; }));
+  scene.add(o); fadeIn(o); needs = true; loaded++;
+}, undefined, () => { loaded++; })); }
 
 /* ---------- Verkehr: volle Automodelle, zwei Fahrspuren mit festem Abstand, Parkstreifen gegenüber ---------- */
 const CARS = ['kompakt', 'kombi', 'limousine', 'suv', 'taxi', 'transporter'];
 const PAINT = ['#16181c', '#e9e9e7', '#7d8288', '#22314f', '#6d1a16', '#3a463a', '#c8c0ae', '#0e0f11', '#a9adb2'];
 const ROAD_Y = -0.12, LANE = [{ z: -7.3, dir: 1, v: 10.5 }, { z: -10.7, dir: -1, v: 9.0 }], PARK_Z = -13.5;
-const traffic = [], carProtos = {};
+const traffic = [], carProtos = {}, carWraps = [];
 function carClone(n, i) {
   const p = carProtos[n]; if (!p) return null; const c = p.clone(true);
   c.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true;
@@ -158,17 +159,17 @@ function carClone(n, i) {
   const wrap = new THREE.Group(), mid = new THREE.Group(); mid.add(c); wrap.add(mid);
   if (nv && nh) { const f = v.divideScalar(nv).sub(h.divideScalar(nh)); mid.rotation.y = Math.atan2(f.z, f.x); }   // Front zeigt danach nach +x
   const bb = new THREE.Box3().setFromObject(wrap); c.position.y -= bb.min.y;
-  scene.add(wrap); return wrap;
+  scene.add(wrap); carWraps.push(wrap); return wrap;
 }
-Promise.all(CARS.concat(['bus']).map(n => new Promise(res => gltf.load(`assets/konfig/autos/${n}.glb?v=2`, g => { carProtos[n] = g.scene; res(); }, undefined, res)))).then(() => {
+function loadCars() { Promise.all(CARS.concat(['bus']).map(n => new Promise(res => gltf.load(`assets/konfig/autos/${n}.glb?v=2`, g => { carProtos[n] = g.scene; res(); }, undefined, res)))).then(() => {
   let i = 0;
   const LITE = window.matchMedia('(max-width: 860px)').matches;   // Handy: weniger Autos
   for (let x = -46; x < 48; x += LITE ? 12.4 : 6.2) { if (R01(i) < 0.18) { i++; continue; } const w = carClone(CARS[i % CARS.length], i + 2); if (w) { w.position.set(x, ROAD_Y, PARK_Z); w.rotation.y = (i % 3 === 0) ? Math.PI : 0; } i++; }
   LANE.forEach((ln, li) => { const n = LITE ? (li ? 3 : 2) : (li ? 5 : 4); for (let k = 0; k < n; k++) {
     const type = (li === 1 && k === 2) ? 'bus' : CARS[(k * 2 + li * 3) % CARS.length]; const w = carClone(type, k * 3 + li); if (!w) continue;
     traffic.push({ w, ln, x: -90 + k * (180 / n) + li * 11, x0: -90 + k * (180 / n) + li * 11 }); } });
-  needs = true; loaded++;
-});
+  carWraps.forEach(fadeIn); needs = true; loaded++;
+}); }
 function R01(i) { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
 function updateTraffic(dt) {
   for (const t of traffic) { t.x += t.ln.dir * t.ln.v * dt; if (t.x > 95) t.x -= 190; if (t.x < -95) t.x += 190;
@@ -207,12 +208,22 @@ const flatMat = new THREE.MeshStandardMaterial({ color: '#3b3d42', roughness: 0.
   house.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
 })();
 // Detailliertes Haus aus Blender (echte Fenster, Tür, Stuck, Mansarde). Solange es lädt, steht das einfache Haus.
-gltf.load('assets/konfig/haus.glb?v=2', g => {
+gltf.load('assets/konfig/haus.glb?v=3', g => {
   const old = [...house.children]; old.forEach(o => house.remove(o));
   g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { m.side = THREE.FrontSide; if (m.map) m.map.anisotropy = 8; }); } });
   house.add(g.scene); if (current) house.traverse(o => { if (/schorn|chimney|kamin/i.test(o.name)) o.visible = current.id !== 'dach'; });
-  applyXray(); needs = true; loaded++;
-}, undefined, () => { loaded++; });
+  applyXray(); needs = true; loaded++; crit++;
+}, undefined, () => { loaded++; crit++; });
+// Autos und Skyline erst nach den wichtigen Teilen laden, damit diese die volle Leitung haben
+(function extrasWhenReady() { if (crit >= CRIT_ALL || performance.now() > 5000) { loadSkyline(); loadCars(); } else setTimeout(extrasWhenReady, 50); })();
+// Weiches Einblenden für Teile, die erst nach dem Ladebildschirm ankommen
+function fadeIn(root) {
+  if (FILM || !document.documentElement.classList.contains('is-ready')) return;
+  const seen = new Set(), mats = [];
+  root.traverse(o => { if (o.isMesh) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { if (seen.has(m)) return; seen.add(m);
+    mats.push({ m, op: m.opacity, tr: m.transparent }); m.transparent = true; m.opacity = 0; m.needsUpdate = true; }); });
+  fades.push({ mats, t0: performance.now() }); needs = true;
+}
 const hall = new THREE.Group(); scene.add(hall); hall.visible = false;
 (function buildHall() { // offene Halle für das Raumgerüst
   const cm = new THREE.MeshStandardMaterial({ color: '#8f8d88', roughness: 0.92 });
@@ -544,6 +555,10 @@ function frame(now) {
   camPos.lerp(camPosGoal, 1 - Math.pow(0.02, dt)); camTgt.lerp(camTgtGoal, 1 - Math.pow(0.02, dt));
   if (camPos.distanceTo(camPosGoal) > 0.01) needs = true;
   if (traffic.length && !document.hidden) { updateTraffic(dt); needs = true; }
+  if (fades.length) { needs = true; for (const f of fades) { const k = clamp((now - f.t0) / 700, 0, 1);
+    for (const q of f.mats) q.m.opacity = q.op * k;
+    if (k >= 1) { f.mats.forEach(q => { q.m.transparent = q.tr; q.m.opacity = q.op; q.m.needsUpdate = true; }); f.done = true; } }
+    fades = fades.filter(f => !f.done); }
   if (!needs) return; needs = false;
   // Kamera um das Ziel drehen
   const off = camPos.clone().sub(camTgt); const r = off.length() * userOrbit.zoom;
@@ -561,8 +576,19 @@ function frame(now) {
   renderer.render(scene, camera);
 }
 resize();
-select((location.hash || '').slice(1) || 'fassade', !FILM);
-if (!FILM) requestAnimationFrame(frame);
+select((location.hash || '').slice(1) || 'fassade', false);
+if (!FILM) {
+  requestAnimationFrame(frame);
+  // Ladebildschirm: Fortschritt aus den geladenen Teilen, danach baut sich das Gerüst vor den Augen auf
+  const LD = window.NeumannLoad, T0 = performance.now();
+  const go = () => { if (current) select(current.id, true); };
+  if (!LD) go();
+  else (function wait() {
+    LD.set(Math.min(crit / CRIT_ALL, 1) * 0.999);
+    if (crit >= CRIT_ALL || performance.now() - T0 > 7000) { LD.finish(); setTimeout(go, 700); return; }
+    setTimeout(wait, 80);
+  })();
+}
 else {
   document.body.classList.add('filmmodus');
   const box = document.createElement('div'); box.id = 'filmlabels'; document.querySelector('.konfig').appendChild(box);

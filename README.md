@@ -3,6 +3,12 @@
 Vorschau der neuen Website für die Neumann Gerüstbau GmbH, Berlin.
 Statische Seite ohne Build: HTML, CSS, JavaScript. Die Scroll-Animation besteht aus 121 Einzelbildern in `assets/frames`.
 
+## Version 12: Ladebildschirm, AVIF Scroll Bilder, leichtere 3D Modelle (22.11.2026)
+- Ladebildschirm auf Startseite und 3D Seite (Inline in `index.html` und `geruestarten.html`, Stil in `style.css` unter „Ladebildschirm“): das Neumann Logo zeichnet sich Linie für Linie mit dem Ladefortschritt, der Schriftzug wischt ein, dann gleitet der Bildschirm nach oben weg. Mindestens 1,2 s, beim zweiten Besuch in der Sitzung 0,45 s, Notausgang nach 10 s. Im Filmmodus (`?film`) aus.
+- Startseite: Scroll Sequenz als AVIF (`assets/seq/da` Rechner 1920 px, `assets/seq/ma` Handy 1280 px, gebaut mit `../12_Interaktiv/ladezeit/avif_bauen.sh`), 66 MB auf 20 MB bzw. 32 MB auf 9 MB. Alte WebP bleiben als Rückfall für Browser ohne AVIF. Der Ladebildschirm wartet auf Startbild, Tafeln, Verkehr, Schrift und jedes 4. Bild über die ganze Strecke; danach laden der Rest in Scroll Reihenfolge, 3D Szenen, Filmvorschauen und Referenzbilder im Hintergrund.
+- 3D Seite: Modelle mit WebP Texturen und Meshopt (`haus` 5,6 auf 1,8 MB, `strasse_park` 7,1 auf 4,1 MB, `gebaeude` 8,7 auf 3,1 MB, Originale in `../08_Blender/web_assets/glb_original/`). Ladebildschirm wartet auf Himmel, Haus, Straße und Gebäude, Autos und Skyline laden danach und blenden weich ein. Das Gerüst baut sich erst nach dem Ladebildschirm auf.
+- Gemessen (lokal, gedrosselt): Startseite frei nach 1,75 s (50 Mbit/s Rechner) bzw. 2,1 s (20 Mbit/s Handy), 3D Seite nach 2,8 s bzw. 5,4 s (vorher 4,2 s bzw. 8,9 s mit Ladebildschirm, ohne ihn baute sich die Szene stückweise auf).
+
 ## Version 11: Erklärfilm „Gerüstbau erklärt“ auf der Startseite (22.11.2026)
 - Neuer Abschnitt `#erklaert` nach dem Drahtmodell: Erklärfilm 1:43 mit Kapiteln (Aufbau, Gerüstarten, Prüfung), die per Klick an die Stelle springen. Film `assets/film/neumann_erklaerfilm.mp4`, Bild `assets/film/erklaerfilm_poster.jpg`. Spielt einer der beiden Filme, pausiert der andere.
 - Der Film ist komplett aus dem 3D Konfigurator gerendert: Filmmodus `geruestarten.html?film` (nur zum Aufnehmen, Steuerung `window.NeumannFilm`), Drehplan und Aufnahme in `../13_Erklaerfilm/werkzeuge/` (`plan.mjs`, `aufnahme.mjs`), Schnitt mit Stimme, Musik und Geräuschen in `../13_Erklaerfilm/video/` (HyperFrames, `python3 bauen.py`).

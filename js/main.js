@@ -17,33 +17,62 @@ var V='?v='+F.v, cur=0, target=0, needs=true;
 function set(prefix,n){return{p:prefix,len:n,img:new Array(n),ok:new Array(n),n:0}}
 var NA=F.aframes, AF=set('a',NA), ND=F.dframes, B=set('b',N), Dn=set('d',ND), plateOld=new Image(), plateNew=new Image(), over=new Image(), statics=0;
 var city=new Image(), cityOk=false, live=false;
-function order(n){var seen={},out=[0];seen[0]=1;[16,8,4,2,1].forEach(function(s){for(var i=0;i<n;i+=s){if(!seen[i]){seen[i]=1;out.push(i)}}});return out}
-var queue=order(NA).map(function(i){return[AF,i]}).concat(order(N).map(function(i){return[B,i]})), active=0, total=NA+N+ND+4, done=0, second=false;
-function progress(){done++;loaderBar.style.width=(done/total*100)+'%';if(done>=total)loader.classList.add('is-done')}
+// Bildformat: AVIF (ein Drittel der Größe), sonst die alten WebP Bilder
+var avif=null;(function(){var t=new Image();t.onload=function(){avif=t.width>0};t.onerror=function(){avif=false};
+  t.src='data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A='})();
+function frameUrl(S,i){var n=S.p+'_'+pad(i+1,3);return avif&&F.avif?'assets/seq/'+dir+'a/'+n+'.avif'+V:'assets/seq/'+dir+'/'+n+'.webp'+V}
+// Reihenfolge grob nach fein über alle drei Abschnitte: erst jedes 16. Bild, dann jedes 8. usw. So gibt es überall früh ein Bild.
+var SEQS=[AF,B,Dn], queue=[], seen=[{},{},{}];
+[16,8,4,2,1].forEach(function(st){SEQS.forEach(function(S,k){for(var i=0;i<S.len;i+=st){if(!seen[k][i]){seen[k][i]=1;queue.push([S,i])}}if(!seen[k][S.len-1]){seen[k][S.len-1]=1;queue.push([S,S.len-1])}})});
+var isCrit=function(S,i,st){return i%st===0||i===S.len-1};
+var need={2:0,4:0},have={2:0,4:0};SEQS.forEach(function(S){for(var i=0;i<S.len;i++){if(isCrit(S,i,2))need[2]++;if(isCrit(S,i,4))need[4]++}});
+// Ladebildschirm wartet auf Startbild, Tafeln, Verkehr, Schrift und jedes 4. Scroll Bild. Der Rest lädt danach in Scroll Reihenfolge.
+var extra=0, EXTRA=6, T0=performance.now(), active=0, revealed=false;
+var L=window.NeumannLoad||{set:function(){},finish:function(){}};
+function report(){
+  var p=(have[4]+extra)/(need[4]+EXTRA), el=performance.now()-T0;if(!revealed)L.set(p*0.999);
+  if(revealed)return;
+  if(p>=1||el>6000){revealed=true;L.finish();afterReveal()}
+}
+function exDone(){extra++;report()}
+function progress(){}
 function pump(){
-  while(active<6&&queue.length){(function(job){
+  var lim=revealed?6:10;
+  while(active<lim&&queue.length){(function(job){
     var S=job[0],i=job[1];active++;var im=new Image();im.decoding='async';
-    im.onload=im.onerror=function(){active--;if(im.naturalWidth&&!S.ok[i]){S.img[i]=im;S.ok[i]=true;S.n++}needs=true;progress();
-      if(!second&&B.n>=N*0.5){second=true;loadRest()}
-      pump()};
-    im.src='assets/seq/'+dir+'/'+S.p+'_'+pad(i+1,3)+'.webp'+V;
+    im.onload=im.onerror=function(){active--;if(im.naturalWidth&&!S.ok[i]){S.img[i]=im;S.ok[i]=true;S.n++;if(isCrit(S,i,2))have[2]++;if(isCrit(S,i,4))have[4]++}needs=true;report();pump()};
+    im.src=frameUrl(S,i);
   })(queue.shift())}
 }
-function loadRest(){
-  [plateOld,plateNew,over].forEach(function(im){im.onload=function(){statics++;needs=true;progress()}});
+function loadStatics(){
+  [plateOld,plateNew,over].forEach(function(im){im.onload=function(){statics++;needs=true;exDone()};im.onerror=ex});
   plateOld.src='assets/seq/alt_'+dir+'.webp'+V; plateNew.src='assets/seq/neu_'+dir+'.webp'+V; over.src='assets/seq/'+dir+'/g.webp'+V;
-  queue=queue.concat([ND-1].concat(order(ND).reverse()).map(function(i){return[Dn,i]}));pump();
 }
-// Reihenfolge: erst das Startbild (per preload schon unterwegs), dann Verkehr und Scroll Bilder, damit nichts um die Leitung konkurriert
 var started=false;
-function startLoads(){if(started)return;started=true;pump();loadTraffic()}
-city.onload=function(){cityOk=true;needs=true;progress();startLoads()};city.onerror=function(){progress();startLoads()};city.src='assets/seq/stadt_'+dir+'.webp'+V;
-setTimeout(startLoads,2500);
+function startLoads(){if(started)return;started=true;loadStatics();loadTraffic();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(exDone,exDone);else exDone();setTimeout(report,6100);
+  (function go(){if(avif===null)return setTimeout(go,10);pump()})()}
+city.onload=function(){cityOk=true;needs=true;exDone()};city.onerror=exDone;city.src='assets/seq/stadt_'+dir+'.webp'+V;
 function loadTraffic(){if(window.NeumannVerkehr&&!reduce){ // lebender Verkehr in der Startansicht
   fetch('assets/verkehr/verkehr.json'+V).then(function(r){return r.json()}).then(function(j){
-    var at=new Image();at.onload=function(){NeumannVerkehr.init(j.data,at,j.atlas);live=true;needs=true};at.src='assets/verkehr/atlas.webp'+V;
-  }).catch(function(){});
-}}
+    var at=new Image();at.onload=function(){NeumannVerkehr.init(j.data,at,j.atlas);live=true;needs=true;exDone()};at.onerror=exDone;at.src='assets/verkehr/atlas.webp'+V;
+  }).catch(exDone);
+}else exDone()}
+function loadLate(){ // gleich nach dem Ladebildschirm: 3D Szenen (Drahtmodell, Logo Skulptur) und Filmvorschauen
+  if(loadLate.done)return;loadLate.done=true;
+  import(new URL('js/scene3d.js?v=10',document.baseURI).href).catch(function(){});
+  $$('video[data-poster]').forEach(function(v){var im=new Image();im.onload=im.onerror=function(){v.poster=v.dataset.poster};im.src=v.dataset.poster});
+}
+// Nach dem Ladebildschirm: zuerst der Rest vom Flug von oben (dort steht man), dann 3D, dann Aufbau und Abbau, zuletzt Referenzbilder
+function afterReveal(){
+  var rank=function(j){return SEQS.indexOf(j[0])};queue.sort(function(a,b){return rank(a)-rank(b)});
+  var late=setTimeout(loadLate,2500);(function w(){if(AF.n>=AF.len){clearTimeout(late);loadLate()}else if(!loadLate.done)setTimeout(w,200)})();
+  pump();
+  var wait=function(){if(queue.length||active)return setTimeout(wait,400);
+    var urls=(window.NEUMANN_REFS||[]).map(function(r){return r.f});$$('[data-img]').forEach(function(li){urls.push(li.dataset.img)});
+    var k=0,next=function(){if(k>=urls.length)return;var im=new Image();im.onload=im.onerror=next;im.src=urls[k++]};for(var c=0;c<4;c++)next();
+  };wait();
+}
+startLoads();
 function nearest(S,i){var L=S.len;if(S.ok[i])return i;for(var d=1;d<L;d++){if(i-d>=0&&S.ok[i-d])return i-d;if(i+d<L&&S.ok[i+d])return i+d}return -1}
 function size(){var dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(stage.clientWidth*dpr);canvas.height=Math.round(stage.clientHeight*dpr);needs=true}
 var T={s:1,dx:0,dy:0,w:0,h:0};
@@ -88,7 +117,7 @@ function render(){
 var lastFp=-1, stageOn=true;
 function onScroll(){
   var r=scrolly.getBoundingClientRect(),total=r.height-window.innerHeight,p=clamp(-r.top/total,0,1),fp=clamp(p/0.96,0,1);
-  target=fp;if(fp>0.002&&typeof startLoads==='function')startLoads();
+  target=fp;
   if(fp!==lastFp){
     lastFp=fp;
     phases.forEach(function(s){s.el.classList.toggle('is-on',!s.hero&&fp>=s.a&&fp<s.b)});
@@ -279,7 +308,4 @@ if(ex&&ev&&ep){
 /* ---------- Später laden: 3D Szenen (three.js) und Vorschaubilder der Filme erst kurz vor dem Sichtbarwerden ---------- */
 var lazyOnce=function(el,margin,fn){if(!el)return;if(!('IntersectionObserver' in window)){fn();return}
   var o=new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting})){o.disconnect();fn()}},{rootMargin:margin});o.observe(el)};
-var s3d=false,load3d=function(){if(s3d)return;s3d=true;import(new URL('js/scene3d.js?v=10',document.baseURI).href).catch(function(){})};
-lazyOnce($('#system'),'1200px 0px',load3d);lazyOnce($('#kontakt'),'1200px 0px',load3d);
-$$('video[data-poster]').forEach(function(v){lazyOnce(v,'900px 0px',function(){v.poster=v.dataset.poster})});
 })();
