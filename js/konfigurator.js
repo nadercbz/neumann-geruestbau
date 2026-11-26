@@ -14,7 +14,7 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
 /* ---------- Bauteile: Name, Erklärung, Farbe im Röntgenblick, Richtung in der Explosionsansicht ---------- */
 const PARTS = {
-  'Stiel':        { txt: 'Senkrechtes Rohr, trägt die Last bis in den Boden.', col: '#6461ff', ex: [0, 0, 0] },
+  'Stiel':        { txt: 'Senkrechtes Rohr, trägt die Last bis in den Boden.', col: '#FACE00', ex: [0, 0, 0] },
   'Riegel':       { txt: 'Waagerechte Verbindung zwischen den Stielen, hält das Gerüst in Form.', col: '#22c3ee', ex: [0, 0.5, 0] },
   'Diagonale':    { txt: 'Schräge Aussteifung, verhindert, dass das Gerüst seitlich kippt.', col: '#f59e0b', ex: [0, 0, -2.2] },
   'Belag':        { txt: 'Stahlboden, auf dem gearbeitet wird. Rutschfest gelocht.', col: '#a3e635', ex: [0, 0.9, 0] },
@@ -22,7 +22,7 @@ const PARTS = {
   'Bordbrett':    { txt: 'Fußleiste am Belag, damit kein Werkzeug herunterfällt.', col: '#fb923c', ex: [0, 0, -1.7] },
   'Verankerung':  { txt: 'Verbindet das Gerüst mit der Fassade, nimmt Wind und Zug auf.', col: '#e879f9', ex: [0, 0, 1.0] },
   'Fußspindel':   { txt: 'Höhenverstellbarer Fuß mit Fußplatte, gleicht Unebenheiten aus.', col: '#10b981', ex: [0, -0.9, 0] },
-  'Leiter':       { txt: 'Innenliegender Aufstieg zwischen den Lagen.', col: '#facc15', ex: [0, 0, 0.6] },
+  'Leiter':       { txt: 'Innenliegender Aufstieg zwischen den Lagen.', col: '#a8b3c4', ex: [0, 0, 0.6] },
   'Lenkrolle':    { txt: 'Feststellbare Rolle, damit das Gerüst verschoben werden kann.', col: '#94a3b8', ex: [0, -0.9, 0] },
   'Ausleger':     { txt: 'Seitliche Stütze, vergrößert die Standfläche gegen Kippen.', col: '#f59e0b', ex: [0, 0, 0] },
   'Kragträger':   { txt: 'Stahlträger, der vom Dach auskragt und das Gerüst hält.', col: '#e879f9', ex: [0, 1.0, 0] },
@@ -535,7 +535,7 @@ function hover(e) {
   tip.innerHTML = `<b>${it.label}</b><span>${PARTS[it.label]?.txt || ''}</span>`;
   if (hot !== it.label) {
     hot = it.label;
-    for (const m of kit.meshes) { m.userData.list.forEach((x, i) => m.setColorAt(i, new THREE.Color(x.label === hot ? '#6461ff' : (xray ? (PARTS[x.label]?.col || '#fff') : '#ffffff')))); m.instanceColor.needsUpdate = true; }
+    for (const m of kit.meshes) { m.userData.list.forEach((x, i) => m.setColorAt(i, new THREE.Color(x.label === hot ? '#FACE00' : (xray ? (PARTS[x.label]?.col || '#fff') : '#ffffff')))); m.instanceColor.needsUpdate = true; }
     needs = true;
   }
 }
@@ -632,7 +632,7 @@ else {
         P.set(g.at[0], g.at[1], g.at[2]).project(camera); const x = (P.x + 1) / 2 * W, y = (1 - P.y) / 2 * H;
         const dx = g.dx ?? 140, dy = g.dy ?? -90, a = g.a ?? 1;
         const rows = g.rows ? `<ul>${g.rows.map(r => `<li>${r}</li>`).join('')}</ul>` : '';
-        return `<div class="ftag" style="opacity:${a};left:${x}px;top:${y}px;--k:${a}"><i class="ftag__dot"></i><svg class="ftag__line" width="${Math.abs(dx) + 4}" height="${Math.abs(dy) + 4}" style="left:${dx < 0 ? dx : 0}px;top:${dy < 0 ? dy : 0}px"><line x1="${dx < 0 ? Math.abs(dx) + 2 : 2}" y1="${dy < 0 ? Math.abs(dy) + 2 : 2}" x2="${dx < 0 ? 2 : Math.abs(dx) + 2}" y2="${dy < 0 ? 2 : Math.abs(dy) + 2}"/></svg><div class="ftag__card${g.big ? ' ftag__card--big' : ''}${g.small ? ' ftag__card--s' : ''}${dx < 0 ? ' ftag__card--l' : ''}" style="left:${dx}px;top:${dy}px;--c:${g.col || (PARTS[g.t] && PARTS[g.t].col) || '#3633cb'}"><b>${g.t}</b>${g.s ? `<span>${g.s}</span>` : ''}${rows}</div></div>`;
+        return `<div class="ftag" style="opacity:${a};left:${x}px;top:${y}px;--k:${a}"><i class="ftag__dot"></i><svg class="ftag__line" width="${Math.abs(dx) + 4}" height="${Math.abs(dy) + 4}" style="left:${dx < 0 ? dx : 0}px;top:${dy < 0 ? dy : 0}px"><line x1="${dx < 0 ? Math.abs(dx) + 2 : 2}" y1="${dy < 0 ? Math.abs(dy) + 2 : 2}" x2="${dx < 0 ? 2 : Math.abs(dx) + 2}" y2="${dy < 0 ? 2 : Math.abs(dy) + 2}"/></svg><div class="ftag__card${g.big ? ' ftag__card--big' : ''}${g.small ? ' ftag__card--s' : ''}${dx < 0 ? ' ftag__card--l' : ''}" style="left:${dx}px;top:${dy}px;--c:${g.col || (PARTS[g.t] && PARTS[g.t].col) || '#FACE00'}"><b>${g.t}</b>${g.s ? `<span>${g.s}</span>` : ''}${rows}</div></div>`;
       }).join('') + (st.legend ? `<div class="flegend" style="opacity:${st.legendA ?? 1}">${st.legend.map(l => `<span><i style="background:${PARTS[l]?.col || '#fff'}"></i>${l}</span>`).join('')}</div>` : '');
       return true;
     },

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Neumann Gerüstbau GmbH | Gerüstbau in Berlin seit 1990</title>
-<meta name="description" content="Neumann Gerüstbau aus Berlin Marzahn: Rahmen- und Rohrkupplungsgerüste, Wetterschutzdächer, Bühnen, Bauaufzüge, Sonderkonstruktionen und Containertransporte. Ausbildungsbetrieb seit 1990.">
+<meta name="description" content="Neumann Gerüstbau aus Berlin Marzahn: Rahmen- und Rohrkupplungsgerüste, Wetterschutzdächer, Bühnen, Bauaufzüge und Sonderkonstruktionen. Einer der größten Anbieter für Gerüstbau in Berlin, Ausbildungsbetrieb seit 1990.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0c0d10">
 <script>/* Ladebildschirm: nur mit JavaScript, Notausgang nach 10 s */
@@ -18,7 +18,7 @@ setTimeout(function(){if(d.classList.contains('is-wait')){d.classList.remove('is
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="assets/seq/stadt_d.webp?v=11" media="(min-width: 861px)" fetchpriority="high">
 <link rel="preload" as="image" href="assets/seq/stadt_m.webp?v=11" media="(max-width: 860px)" fetchpriority="high">
-<link rel="stylesheet" href="css/style.css?v=18">
+<link rel="stylesheet" href="css/style.css?v=20">
 <script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
 </head>
 <body>
@@ -60,7 +60,7 @@ requestAnimationFrame(f)})();</script>
     <a href="#leistungen"><i>04</i>Leistungen</a>
     <a href="#referenzen"><i>05</i>Projekte</a>
     <a href="#unternehmen"><i>06</i>Unternehmen</a>
-    <a href="#karriere"><i>07</i>Karriere</a>
+    <a href="#karriere" class="nav__hire"><i>07</i>Karriere</a>
     <a class="nav__menu-cta" href="#kontakt"><i>08</i>Kontakt</a>
   </nav>
   <div class="nav__right">
@@ -82,9 +82,11 @@ requestAnimationFrame(f)})();</script>
     <div class="hero">
       <p class="mono hero__kicker"><span class="pulse"></span>Gerüstbau · Berlin · seit 1990</p>
       <h1 class="hero__title" id="heroTitle"><span><b>Gebaut,</b></span><span><b>um zu tragen.</b></span></h1>
+      <p class="hero__claim">Einer der größten Anbieter für Gerüstbau in Berlin.</p>
       <div class="hero__btns">
         <a class="btn btn--light" href="#kontakt">Projekt anfragen</a>
         <a class="btn btn--line" href="#referenzen">Projekte ansehen</a>
+        <a class="hero__jobs" href="#karriere"><span class="pulse"></span>Wir stellen ein</a>
       </div>
     </div>
 
@@ -119,7 +121,7 @@ requestAnimationFrame(f)})();</script>
   <p class="mono explore__kicker">Interaktiv erleben</p>
   <div class="explore__grid">
     <a class="explore__tile" href="geruestarten.html"><span class="mono">01</span><h2>Gerüstarten in 3D</h2><p>Sechs Gerüste bauen sich vor Ihren Augen auf. Mit Röntgenblick und Explosionsansicht.</p><i class="arr"></i></a>
-    <a class="explore__tile" href="projekt.html"><span class="mono">02</span><h2>Ihr Projekt</h2><p>Gerüst berechnen, am eigenen Haus ansehen und unsere Baustellen auf der Karte entdecken.</p><i class="arr"></i></a>
+    <a class="explore__tile" href="projekt.html"><span class="mono">02</span><h2>Ihr Projekt</h2><p>Gerüst interaktiv planen, am eigenen Haus ansehen und unsere Baustellen auf der Karte entdecken.</p><i class="arr"></i></a>
     <a class="explore__tile" href="sicherheit.html"><span class="mono">03</span><h2>Sicherheit</h2><p>Vorher und nachher, neun Punkte am Gerüst und wie wir prüfen.</p><i class="arr"></i></a>
   </div>
 </section>
@@ -127,12 +129,12 @@ requestAnimationFrame(f)})();</script>
 <!-- ============ IMAGEFILM ============ -->
 <section class="film" id="film" aria-label="Imagefilm Neumann Gerüstbau">
   <div class="film__head">
-    <p class="mono label">Imagefilm · 43 Sekunden</p>
+    <p class="mono label">Imagefilm · 41 Sekunden</p>
     <h2 class="film__title split">Lage für Lage. Seit 1990.</h2>
   </div>
   <div class="film__frame" id="filmFrame">
-    <video id="filmVideo" preload="none" playsinline data-poster="assets/film/poster.webp?v=6">
-      <source src="assets/film/neumann_imagefilm.mp4?v=4" type="video/mp4">
+    <video id="filmVideo" preload="none" playsinline data-poster="assets/film/poster.webp?v=7">
+      <source src="assets/film/neumann_imagefilm.mp4?v=5" type="video/mp4">
     </video>
     <button class="film__play" id="filmPlay" type="button" aria-label="Imagefilm abspielen">
       <span class="film__btn"><i></i></span>
@@ -184,8 +186,8 @@ requestAnimationFrame(f)})();</script>
     <a class="explain__more" href="geruestarten.html">Selbst ausprobieren: Gerüstarten in 3D <i class="arr"></i></a>
   </div>
   <div class="film__frame explain__frame">
-    <video id="explainVideo" preload="none" playsinline data-poster="assets/film/erklaerfilm_poster.webp?v=2">
-      <source src="assets/film/neumann_erklaerfilm.mp4?v=2" type="video/mp4">
+    <video id="explainVideo" preload="none" playsinline data-poster="assets/film/erklaerfilm_poster.webp?v=3">
+      <source src="assets/film/neumann_erklaerfilm.mp4?v=3" type="video/mp4">
     </video>
     <button class="film__play" id="explainPlay" type="button" aria-label="Erklärfilm abspielen">
       <span class="film__btn"><i></i></span>
@@ -208,11 +210,11 @@ requestAnimationFrame(f)})();</script>
     </article>
     <article class="acc">
       <button class="acc__btn" aria-expanded="false"><span>Termintreue</span><i></i></button>
-      <div class="acc__body"><div class="acc__inner"><p>Eigene Kolonnen, eigener Fuhrpark, eigenes Lager in Marzahn. Wir sind nicht von Subunternehmern abhängig und stehen dann auf der Baustelle, wenn es vereinbart ist.</p><a class="more" href="#kontakt">Termin anfragen</a></div></div>
+      <div class="acc__body"><div class="acc__inner"><p>Eigene Kolonnen, eigener Fuhrpark, eigenes Lager in Marzahn. Wir stehen auf der Baustelle, wenn es vereinbart ist.</p><a class="more" href="#kontakt">Termin anfragen</a></div></div>
     </article>
     <article class="acc">
       <button class="acc__btn" aria-expanded="false"><span>Erfahrung</span><i></i></button>
-      <div class="acc__body"><div class="acc__inner"><p>Seit 1990 in Berlin. Vom Gründerzeithaus im Kiez bis zum Olympiastadion, vom Kirchturm bis zur Konzertbühne.</p><a class="more" href="#referenzen">Projekte ansehen</a></div></div>
+      <div class="acc__body"><div class="acc__inner"><p>Seit 1990 in Berlin. Vom Wohnquartier in Marzahn bis zur Alten Försterei, von der Charité bis Unter den Linden.</p><a class="more" href="#referenzen">Projekte ansehen</a></div></div>
     </article>
     <article class="acc">
       <button class="acc__btn" aria-expanded="false"><span>Nachwuchs</span><i></i></button>
@@ -221,13 +223,13 @@ requestAnimationFrame(f)})();</script>
   </div>
   <div class="values__strip" id="coordStrip" aria-hidden="true">
     <i class="coord__h"></i><i class="coord__v"></i>
-    <div class="coord__img"><img data-plx="img" src="assets/img/humboldthafen.webp" alt="" loading="lazy"></div>
+    <div class="coord__img"><img data-plx="img" src="assets/img/ref/baustelle_behrens_ufer.webp" alt="" loading="lazy"></div>
     <span class="mono coord__x">X: <b id="cx">99</b></span>
     <span class="mono coord__y">Y: <b id="cy">141</b></span>
     <div class="values__facts">
       <div><b data-count="1990">1990</b><span class="mono">Gegründet</span></div>
-      <div><b data-count="6">6</b><span class="mono">Leistungsbereiche</span></div>
-      <div><b data-count="56">56</b><span class="mono">Referenzobjekte online</span></div>
+      <div><b data-count="5">5</b><span class="mono">Leistungsbereiche</span></div>
+      <div><b data-count="18">18</b><span class="mono">Aktuelle Baustellen online</span></div>
       <div><b>B·BB</b><span class="mono">Berlin und Brandenburg</span></div>
     </div>
   </div>
@@ -240,12 +242,11 @@ requestAnimationFrame(f)})();</script>
     <h2 class="split">Alles, was hoch hinaus muss.</h2>
   </header>
   <ul class="svc" id="svc">
-    <li data-img="assets/img/ref/Kirchen_0021.webp"><span class="mono">01</span><h3>Rahmen- und Rohrkupplungsgerüste</h3><p>Arbeits- und Schutzgerüste für Fassade, Dach und Innenraum.</p><i class="arr"></i></li>
-    <li data-img="assets/img/wetterschutzdach.webp"><span class="mono">02</span><h3>Wetterschutzdächer</h3><p>Ein Dach über der Baustelle, damit der Zeitplan nicht am Wetter hängt.</p><i class="arr"></i></li>
-    <li data-img="assets/img/ref/Veranstaltungen_v003.webp"><span class="mono">03</span><h3>Bühnen und Verkleidungen</h3><p>Tribünen, Podeste, Planen, Netze und Werbeflächen am Gerüst.</p><i class="arr"></i></li>
-    <li data-img="assets/img/ref/Gewerbe_gew_001.webp"><span class="mono">04</span><h3>Bauaufzüge und Hebebühnen</h3><p>Material und Menschen kommen sicher nach oben.</p><i class="arr"></i></li>
-    <li data-img="assets/img/ref/Gewerbe_g011.webp"><span class="mono">05</span><h3>Sonderkonstruktionen</h3><p>Hängegerüste, Überbrückungen, Treppentürme nach Maß.</p><i class="arr"></i></li>
-    <li data-img="assets/img/fuhrpark.webp"><span class="mono">06</span><h3>Containertransporte</h3><p>Eigene LKW mit Ladekran und Abrollsystem.</p><i class="arr"></i></li>
+    <li data-img="assets/img/ref/baustelle_friedenauer_hoehe.webp"><span class="mono">01</span><h3>Rahmen- und Rohrkupplungsgerüste</h3><p>Arbeits- und Schutzgerüste für Fassade, Dach und Innenraum.</p><i class="arr"></i></li>
+    <li data-img="assets/img/leistung_wetterschutzdach.webp"><span class="mono">02</span><h3>Wetterschutzdächer</h3><p>Ein Dach über der Baustelle, damit der Zeitplan nicht am Wetter hängt.</p><i class="arr"></i></li>
+    <li data-img="assets/img/ref/baustelle_unter_den_linden.webp"><span class="mono">03</span><h3>Bühnen und Verkleidungen</h3><p>Tribünen, Podeste, Planen, Netze und Werbeflächen am Gerüst.</p><i class="arr"></i></li>
+    <li data-img="assets/img/leistung_bauaufzug.webp"><span class="mono">04</span><h3>Bauaufzüge und Hebebühnen</h3><p>Material und Menschen kommen sicher nach oben.</p><i class="arr"></i></li>
+    <li data-img="assets/img/ref/baustelle_siemens_ag.webp"><span class="mono">05</span><h3>Sonderkonstruktionen</h3><p>Hängegerüste, Überbrückungen, Treppentürme nach Maß.</p><i class="arr"></i></li>
   </ul>
   <div class="svc__float" id="svcFloat" aria-hidden="true"><img alt=""><span class="mono" id="svcCoord">X 000 · Y 000</span></div>
 </section>
@@ -258,8 +259,8 @@ requestAnimationFrame(f)})();</script>
   </header>
   <div class="grid" id="grid"></div>
   <div class="marquee" aria-hidden="true"><div class="marquee__shift" data-plx="h"><div class="marquee__track">
-    <span>Olympiastadion</span><span>Bahnhof Ostkreuz</span><span>Zoofenster</span><span>Konzerthaus Berlin</span><span>Jüdisches Museum</span><span>Messe Berlin</span><span>Hamburger Bahnhof</span><span>Europa-Center</span><span>Bundesarchiv</span>
-    <span>Olympiastadion</span><span>Bahnhof Ostkreuz</span><span>Zoofenster</span><span>Konzerthaus Berlin</span><span>Jüdisches Museum</span><span>Messe Berlin</span><span>Hamburger Bahnhof</span><span>Europa-Center</span><span>Bundesarchiv</span>
+    <span>Alte Försterei</span><span>Charité</span><span>Unter den Linden</span><span>Siemens AG</span><span>HTW Berlin</span><span>Friedenauer Höhe</span><span>Marienpark</span><span>Behrens Ufer</span><span>Allee der Kosmonauten</span>
+    <span>Alte Försterei</span><span>Charité</span><span>Unter den Linden</span><span>Siemens AG</span><span>HTW Berlin</span><span>Friedenauer Höhe</span><span>Marienpark</span><span>Behrens Ufer</span><span>Allee der Kosmonauten</span>
   </div></div></div>
 </section>
 
@@ -269,7 +270,7 @@ requestAnimationFrame(f)})();</script>
   <div class="company__txt">
     <p class="mono label">Unternehmen</p>
     <h2 class="split">Seit 1990 in Berlin. Von Marzahn aus in die ganze Stadt.</h2>
-    <p class="reveal">Die Neumann Gerüstbau GmbH ist Ihr Partner für Gerüste in Berlin und Brandenburg. Büro, Lager und Werkstatt liegen in der Bitterfelder Straße in Marzahn. Feste Ansprechpartner begleiten Sie von der Planung bis zum Abbau.</p>
+    <p class="reveal">Die Neumann Gerüstbau GmbH ist einer der größten Anbieter für Gerüstbau in Berlin und Ihr Partner in ganz Brandenburg. Büro, Lager und Werkstatt liegen in der Bitterfelder Straße in Marzahn. Feste Ansprechpartner begleiten Sie von der Planung bis zum Abbau.</p>
     <dl class="specs reveal">
       <div><dt class="mono">Geschäftsführung</dt><dd>Jörg, Torsten und Mike Neumann</dd></div>
       <div><dt class="mono">Mitgliedschaft</dt><dd>Bundesverband Gerüstbau</dd></div>
@@ -285,16 +286,19 @@ requestAnimationFrame(f)})();</script>
 
 <!-- ============ KARRIERE ============ -->
 <section class="careers" id="karriere">
-  <header class="sec-head" data-speed="0.05">
-    <p class="mono label">Karriere</p>
-    <h2 class="split">Arbeit mit Aussicht.</h2>
+  <header class="sec-head careers__head" data-speed="0.05">
+    <p class="mono label"><span class="pulse"></span> Karriere · Wir stellen ein</p>
+    <h2 class="split">Komm ins Team. Berlin wächst, wir auch.</h2>
+    <p class="careers__lead reveal">Wir suchen neue Leute, die anpacken wollen. Du arbeitest in einer festen Kolonne, mit eigenem Material und eigenen LKW, auf Baustellen quer durch die Stadt: von der Alten Försterei bis zur Charité. Abends siehst du, was du geschafft hast. Erfahrung? Schön. Wenn nicht, bringen wir dir alles bei.</p>
+    <ul class="careers__tags reveal mono"><li>Feste Kolonne</li><li>Echte Baustellen ab Tag eins</li><li>Ausbildungsbetrieb seit 1990</li><li>Quereinstieg möglich</li></ul>
   </header>
   <div class="jobs">
-    <a class="job" href="mailto:info@geruestbau-neumann.de?subject=Bewerbung%20Ger%C3%BCstbauer"><span class="mono">Laufend</span><h3>Gerüstbauer <small>(m/w/d)</small></h3><p>Für unsere Kolonnen in Berlin und Brandenburg. Mit Erfahrung oder als Quereinsteiger.</p><i class="arr"></i></a>
-    <a class="job" href="mailto:info@geruestbau-neumann.de?subject=Bewerbung%20Schlosser%20%2F%20Metallbauer"><span class="mono">Ab sofort</span><h3>Schlosser / Metallbauer <small>(m/w/d)</small></h3><p>Werkstatt, Reparatur von Gerüstmaterial, Schweißkenntnisse.</p><i class="arr"></i></a>
-    <a class="job" href="mailto:info@geruestbau-neumann.de?subject=Bewerbung%20Kraftfahrer"><span class="mono">Laufend</span><h3>Kraftfahrer <small>(m/w/d)</small></h3><p>Kran- und Container-LKW, Material dorthin, wo es gebraucht wird.</p><i class="arr"></i></a>
-    <a class="job" href="mailto:info@geruestbau-neumann.de?subject=Ausbildung%20Ger%C3%BCstbauer"><span class="mono">Ausbildung</span><h3>Ausbildung zum Gerüstbauer</h3><p>Seit 1990 bilden wir aus. Echte Baustellen ab dem ersten Monat.</p><i class="arr"></i></a>
+    <a class="job" href="mailto:info@geruestbau-neumann.de?subject=Bewerbung%20Ger%C3%BCstbauer"><span class="mono">Laufend</span><h3>Gerüstbauer <small>(m/w/d)</small></h3><p>Für unsere Kolonnen in Berlin und Brandenburg. Mit Erfahrung oder als Quereinsteiger, den Rest zeigen wir dir.</p><i class="arr"></i></a>
+    <a class="job" href="mailto:info@geruestbau-neumann.de?subject=Bewerbung%20Schlosser%20%2F%20Metallbauer"><span class="mono">Ab sofort</span><h3>Schlosser / Metallbauer <small>(m/w/d)</small></h3><p>In unserer Werkstatt hältst du das Gerüstmaterial in Schuss. Schweißen kannst du schon? Perfekt.</p><i class="arr"></i></a>
+    <a class="job" href="mailto:info@geruestbau-neumann.de?subject=Bewerbung%20Kraftfahrer"><span class="mono">Laufend</span><h3>Kraftfahrer <small>(m/w/d)</small></h3><p>Mit dem Kran LKW bringst du das Material dorthin, wo es gebraucht wird.</p><i class="arr"></i></a>
+    <a class="job" href="mailto:info@geruestbau-neumann.de?subject=Ausbildung%20Ger%C3%BCstbauer"><span class="mono">Ausbildung</span><h3>Ausbildung zum Gerüstbauer</h3><p>Seit 1990 bilden wir aus. Bei uns stehst du ab dem ersten Monat auf echten Baustellen.</p><i class="arr"></i></a>
   </div>
+  <a class="careers__ig" href="https://www.instagram.com/neumann_geruestbau_gmbh/" target="_blank" rel="noopener"><span class="careers__ig-ic" aria-hidden="true"></span><span><b>Sieh dir an, wo wir gerade bauen</b><small class="mono">Instagram · @neumann_geruestbau_gmbh</small></span><i class="arr"></i></a>
 </section>
 
 <!-- ============ KONTAKT MIT 3D OBJEKT ============ -->
@@ -312,7 +316,7 @@ requestAnimationFrame(f)})();</script>
       <label><span class="mono">Telefon</span><input name="tel" type="tel" autocomplete="tel" required></label>
       <label><span class="mono">Firma, optional</span><input name="firma" autocomplete="organization"></label>
       <label><span class="mono">Leistung</span>
-        <select name="leistung"><option>Fassadengerüst</option><option>Wetterschutzdach</option><option>Bühne oder Verkleidung</option><option>Bauaufzug oder Hebebühne</option><option>Sonderkonstruktion</option><option>Containertransport</option><option>Etwas anderes</option></select>
+        <select name="leistung"><option>Fassadengerüst</option><option>Wetterschutzdach</option><option>Bühne oder Verkleidung</option><option>Bauaufzug oder Hebebühne</option><option>Sonderkonstruktion</option><option>Etwas anderes</option></select>
       </label>
       <label class="full"><span class="mono">Ort und Beschreibung</span><textarea name="msg" rows="3" placeholder="z. B. Altbau, 5 Etagen, Straßenseite, Start im März"></textarea></label>
       <button class="btn btn--light full" type="submit">Anfrage senden</button>
@@ -327,19 +331,19 @@ requestAnimationFrame(f)})();</script>
   <div class="foot__big"><span class="logo" data-speed="-0.12"></span></div>
   <div class="foot__row mono">
     <span>© <span id="year">2026</span> Neumann Gerüstbau GmbH</span>
-    <nav aria-label="Fußzeile"><a href="#leistungen">Leistungen</a><a href="#referenzen">Projekte</a><a href="#unternehmen">Unternehmen</a><a href="#karriere">Karriere</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
+    <nav aria-label="Fußzeile"><a href="#leistungen">Leistungen</a><a href="#referenzen">Projekte</a><a href="#unternehmen">Unternehmen</a><a href="#karriere">Karriere</a><a href="https://www.instagram.com/neumann_geruestbau_gmbh/" target="_blank" rel="noopener">Instagram</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
     <span>Vorschauversion</span>
   </div>
 </footer>
 
 <div class="lightbox" id="lightbox" hidden><button aria-label="Schließen">×</button><figure><img alt=""><figcaption class="mono"></figcaption></figure></div>
 
-<script src="js/data.js?v=2"></script>
+<script src="js/data.js?v=14"></script>
 <script src="js/frames.js?v=12"></script>
 <script src="assets/vendor/lenis.min.js"></script>
 <script src="js/verkehr.js?v=11"></script>
-<script src="js/main.js?v=14"></script>
+<script src="js/main.js?v=15"></script>
 <script src="js/sound.js?v=11"></script>
-<script src="js/showroom.js?v=1" defer></script>
+<script src="js/showroom.js?v=2" defer></script>
 </body>
 </html>

@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ihr Projekt: Rechner, Foto Vorschau, Karte | Neumann Gerüstbau GmbH</title>
-<meta name="description" content="Gerüst Rechner für Fläche, Lagen und Material, Foto Vorschau mit Gerüst an Ihrem Haus und alle Baustellen von Neumann Gerüstbau auf der Berlin Karte.">
+<title>Ihr Projekt: Gerüstbau interaktiv, Foto Vorschau, Karte | Neumann Gerüstbau GmbH</title>
+<meta name="description" content="Gerüstbau interaktiv: Haus in 3D zusammenstellen und das passende Gerüst sehen, Foto Vorschau mit Gerüst an Ihrem Haus und unsere aktuellen Baustellen auf der Berlin Karte.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0c0d10">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/style.css?v=18">
-<link rel="stylesheet" href="css/unterseiten.css?v=8">
+<link rel="stylesheet" href="css/style.css?v=20">
+<link rel="stylesheet" href="css/unterseiten.css?v=10">
+<script type="importmap">{"imports":{"three":"./assets/vendor/three.module.min.js"}}</script>
 </head>
 <body class="sub sub--projekt">
 <header class="nav is-solid" id="nav">
@@ -34,38 +35,54 @@
   <section class="p-hero">
     <p class="mono p-kicker"><span class="pulse"></span> Ihr Projekt</p>
     <h1>Von der Idee<br>zum Gerüst.</h1>
-    <p class="p-lead">Rechnen Sie Ihr Gerüst grob durch, sehen Sie es an Ihrem eigenen Haus und entdecken Sie, wo wir in Berlin schon gebaut haben.</p>
+    <p class="p-lead">Planen Sie Ihr Gerüst in 3D, sehen Sie es an Ihrem eigenen Haus und entdecken Sie, wo wir in Berlin gerade bauen.</p>
     <nav class="p-tabs" aria-label="Werkzeuge">
-      <a href="#rechner"><span class="mono">01</span>Gerüst Rechner</a>
+      <a href="#planer"><span class="mono">01</span>Gerüstbau interaktiv</a>
       <a href="#foto"><span class="mono">02</span>Foto Vorschau</a>
       <a href="#karte"><span class="mono">03</span>Baustellen Karte</a>
     </nav>
   </section>
 
-  <!-- ===== Rechner ===== -->
-  <section class="tool" id="rechner">
-    <header class="tool__head"><p class="mono">01 / Gerüst Rechner</p><h2>Wie viel Gerüst braucht Ihr Haus?</h2></header>
-    <div class="calc">
-      <form class="calc__in" onsubmit="return false">
-        <label class="field"><span class="mono">Gerüstart</span>
-          <select id="r-art"><option value="fassade">Fassadengerüst</option><option value="wetter">Fassadengerüst mit Wetterschutzdach</option><option value="raum">Raumgerüst</option></select></label>
-        <label class="field"><span class="mono">Fassadenlänge <b id="r-len-v"></b></span><input id="r-len" type="range" min="3" max="120" step="1" value="24"></label>
-        <label class="field"><span class="mono">Gerüsthöhe <b id="r-hgt-v"></b></span><input id="r-hgt" type="range" min="3" max="40" step="0.5" value="15"></label>
-        <label class="field"><span class="mono">Nutzung</span>
-          <select id="r-use"><option value="maler">Malerarbeiten, Reinigung</option><option value="putz" selected>Putz, Dämmung, Fenster</option><option value="maurer">Mauerwerk, Naturstein</option></select></label>
-        <label class="field"><span class="mono">Standzeit <b id="r-wk-v"></b></span><input id="r-wk" type="range" min="1" max="52" step="1" value="8"></label>
-        <fieldset class="field"><legend class="mono">Extras</legend>
-          <label class="check"><input type="checkbox" name="r-x" value="netz"> Netz oder Plane</label>
-          <label class="check"><input type="checkbox" name="r-x" value="dach"> Schutzdach über dem Gehweg</label>
-          <label class="check"><input type="checkbox" name="r-x" value="turm"> Treppenturm</label>
-          <label class="check"><input type="checkbox" name="r-x" value="aufzug"> Bauaufzug</label>
+  <!-- ===== Gerüstbau interaktiv ===== -->
+  <section class="tool" id="planer">
+    <span id="rechner" class="anchor" aria-hidden="true"></span>
+    <header class="tool__head"><p class="mono">01 / Gerüstbau interaktiv</p><h2>Planen Sie Ihr Gerüst. <b>In 3D.</b></h2>
+      <p>Stellen Sie Ihr Haus zusammen: Gebäudeart, Größe, Fenster, Balkone, Türen und Untergrund. Das Gerüst baut sich passend davor auf. Nur zur Veranschaulichung, keine verbindliche Berechnung.</p></header>
+    <div class="pl">
+      <form class="pl__panel" id="pl-form" onsubmit="return false">
+        <fieldset class="pl__grp"><legend class="mono">01 Gebäude</legend>
+          <div class="pl__seg" data-k="art" role="group"><button type="button" data-val="altbau">Altbau</button><button type="button" data-val="neubau">Neubau</button><button type="button" data-val="gewerbe">Gewerbe</button></div>
+          <label class="field"><span class="mono">Breite <b data-v="breite"></b></span><input type="range" name="breite" min="8" max="60" step="1"></label>
+          <label class="field"><span class="mono">Geschosse <b data-v="etagen"></b></span><input type="range" name="etagen" min="1" max="10" step="1"></label>
+          <label class="field"><span class="mono">Deckenhöhe <b data-v="decke"></b></span><input type="range" name="decke" min="2.5" max="4.2" step="0.1"></label>
+          <p class="pl__hint mono">Neubau ca. 2,8 m · Altbau ca. 3,4 m</p>
+        </fieldset>
+        <fieldset class="pl__grp"><legend class="mono">02 Fassade</legend>
+          <div class="pl__seg" data-k="fassade" role="group"><button type="button" data-val="putz">Putz</button><button type="button" data-val="klinker">Klinker</button><button type="button" data-val="naturstein">Naturstein</button><button type="button" data-val="glas">Glas</button></div>
+          <label class="field"><span class="mono">Fenster je Etage <b data-v="fenster"></b></span><input type="range" name="fenster" min="1" max="20" step="1"></label>
+          <label class="field"><span class="mono">Balkone je Etage <b data-v="balkone"></b></span><input type="range" name="balkone" min="0" max="10" step="1"></label>
+          <div class="pl__seg pl__seg--s" data-k="bplatz" role="group"><button type="button" data-val="mitte">Mitte</button><button type="button" data-val="links">Links</button><button type="button" data-val="rechts">Rechts</button><button type="button" data-val="verteilt">Verteilt</button></div>
+          <label class="field"><span class="mono">Haustüren <b data-v="tueren"></b></span><input type="range" name="tueren" min="1" max="4" step="1"></label>
+          <div class="pl__seg pl__seg--s" data-k="tplatz" role="group"><button type="button" data-val="mitte">Mitte</button><button type="button" data-val="links">Links</button><button type="button" data-val="rechts">Rechts</button><button type="button" data-val="verteilt">Verteilt</button></div>
+        </fieldset>
+        <fieldset class="pl__grp"><legend class="mono">03 Gerüst</legend>
+          <span class="mono pl__lbl">Untergrund</span>
+          <div class="pl__seg" data-k="boden" role="group"><button type="button" data-val="asphalt">Asphalt</button><button type="button" data-val="pflaster">Pflaster</button><button type="button" data-val="rasen">Rasen</button><button type="button" data-val="schotter">Schotter</button></div>
+          <span class="mono pl__lbl">Gelände</span>
+          <div class="pl__seg" data-k="gelaende" role="group"><button type="button" data-val="eben">Eben</button><button type="button" data-val="gefaelle">Mit Gefälle</button></div>
+          <label class="field"><span class="mono">Gerüstebenen <b data-v="lagen"></b></span><input type="range" name="lagen" min="1" max="20" step="1"></label>
+          <label class="check"><input type="checkbox" name="netz"> Netz vor dem Gerüst</label>
         </fieldset>
       </form>
-      <div class="calc__out">
-        <svg id="r-svg" class="elev" viewBox="0 0 600 300" role="img" aria-label="Ansicht des berechneten Gerüsts"></svg>
-        <dl id="r-out" class="results"></dl>
-        <p class="note">Richtwerte für eine erste Planung. Den genauen Preis erstellen wir kostenlos nach einer Besichtigung vor Ort.</p>
-        <a class="btn btn--light" id="r-mail" href="#">Angebot mit diesen Werten anfragen</a>
+        <div class="pl__view">
+          <canvas id="pl-canvas" aria-label="3D Modell: Haus mit Gerüst"></canvas>
+          <p class="pl__help mono"><span class="pl__help-m">Ziehen zum Drehen · Scrollen zum Zoomen</span><span class="pl__help-t">Wischen zum Drehen · Zwei Finger zum Zoomen</span></p>
+          <div class="pl__tools" id="pl-tools"><button type="button" data-act="zufall">Zufall</button><button type="button" data-act="front">Frontal</button><button type="button" data-act="bild">Bild speichern</button><button type="button" data-act="link">Link teilen</button></div>
+        </div>
+      <div class="pl__info">
+        <dl class="pl__out" id="pl-out"></dl>
+        <p class="note">Nur zur visuellen Darstellung, keine verbindliche Berechnung und kein Angebot. Den genauen Umfang klären wir kostenlos bei einer Besichtigung vor Ort.</p>
+        <a class="btn btn--light" id="pl-mail" href="#">Planung als Anfrage senden</a>
       </div>
     </div>
   </section>
@@ -95,14 +112,14 @@
 
   <!-- ===== Karte ===== -->
   <section class="tool" id="karte">
-    <header class="tool__head"><p class="mono">03 / Baustellen Karte</p><h2><b id="m-count"></b> Projekte in Berlin und Brandenburg.</h2></header>
+    <header class="tool__head"><p class="mono">03 / Baustellen Karte</p><h2><b id="m-count"></b> aktuelle Baustellen in Berlin.</h2></header>
     <div class="map">
       <div class="map__filter" id="m-filter"></div>
       <div class="map__view">
-        <svg id="m-svg" class="map__svg" role="img" aria-label="Karte von Berlin mit Referenzprojekten"></svg>
+        <svg id="m-svg" class="map__svg" role="img" aria-label="Karte von Berlin mit aktuellen Baustellen"></svg>
         <article class="map__card" id="m-card" hidden></article>
       </div>
-      <p class="note">Bezirksgrenzen: Amt für Statistik Berlin-Brandenburg (CC BY). Lage der Projekte ungefähr.</p>
+      <p class="note">Bezirksgrenzen: Amt für Statistik Berlin-Brandenburg (CC BY). Lage der Baustellen ungefähr.</p>
     </div>
   </section>
 
@@ -119,9 +136,10 @@ function set(o){m.classList.toggle('is-open',o);b.setAttribute('aria-expanded',o
 b.addEventListener('click',function(){set(b.getAttribute('aria-expanded')!=='true')});
 m.addEventListener('click',function(e){if(e.target.closest('a'))set(false)})})();
 </script>
-<script src="js/data.js?v=13"></script>
+<script src="js/data.js?v=14"></script>
 <script src="js/karte_daten.js?v=1"></script>
-<script src="js/projekt.js?v=3"></script>
-<script src="js/showroom.js?v=1" defer></script>
+<script src="js/projekt.js?v=4"></script>
+<script type="module" src="js/planer.js?v=1"></script>
+<script src="js/showroom.js?v=2" defer></script>
 </body>
 </html>

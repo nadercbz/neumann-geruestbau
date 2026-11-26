@@ -112,7 +112,7 @@ function visibleWatcher(el, cb) {
   geo.setAttribute('aOrd', new THREE.Float32BufferAttribute(ord, 1));
   geo.setAttribute('aKind', new THREE.Float32BufferAttribute(kind, 1));
 
-  const uni = { uP: { value: 0 }, uColor: { value: new THREE.Color('#7a77ff') }, uHot: { value: new THREE.Color('#ffffff') } };
+  const uni = { uP: { value: 0 }, uColor: { value: new THREE.Color('#FACE00') }, uHot: { value: new THREE.Color('#ffffff') } };
   const mat = new THREE.ShaderMaterial({
     uniforms: uni, transparent: true, depthWrite: false, 
     vertexShader: `attribute float aOrd; attribute float aKind; varying float vOrd; varying float vKind; varying float vDepth;
@@ -179,7 +179,7 @@ function visibleWatcher(el, cb) {
   scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 200);
 
-  const mat = new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#2622b8'), metalness: 0.55, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 0.85 });
+  const mat = new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#F2C200'), metalness: 0.55, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 0.85 });
   function beam(len, s = 0.62) {
     const sh = new THREE.Shape(), r = 0.08, a = s / 2;
     sh.moveTo(-a + r, -a); sh.lineTo(a - r, -a); sh.quadraticCurveTo(a, -a, a, -a + r); sh.lineTo(a, a - r); sh.quadraticCurveTo(a, a, a - r, a);
@@ -201,7 +201,7 @@ function visibleWatcher(el, cb) {
   scene.add(g);
 
   const key = new THREE.DirectionalLight('#ffffff', 2.2); key.position.set(-6, 8, 10); scene.add(key);
-  const rim = new THREE.DirectionalLight('#8f8cff', 3); rim.position.set(10, -4, -6); scene.add(rim);
+  const rim = new THREE.DirectionalLight('#ffe27a', 3); rim.position.set(10, -4, -6); scene.add(rim);
   scene.add(new THREE.AmbientLight('#20223a', 0.6));
 
   let w = 0, h = 0;

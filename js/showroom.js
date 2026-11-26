@@ -20,13 +20,13 @@ function build() {
   var years = new Date().getFullYear() - 1990, nP = Object.keys(names).length;
   sr = d.createElement('div');
   sr.className = 'sr'; sr.id = 'showroom'; sr.hidden = true;
-  sr.setAttribute('role', 'dialog'); sr.setAttribute('aria-modal', 'true'); sr.setAttribute('aria-label', 'Showroom, Referenzprojekte von Neumann Gerüstbau');
+  sr.setAttribute('role', 'dialog'); sr.setAttribute('aria-modal', 'true'); sr.setAttribute('aria-label', 'Showroom, aktuelle Baustellen von Neumann Gerüstbau');
   sr.innerHTML =
     '<div class="sr__bg"></div>' +
     '<div class="sr__scroll" data-lenis-prevent>' +
       '<header class="sr__head"><p class="mono sr__kick"><span class="pulse"></span>Showroom</p>' +
-        '<h2 class="sr__title">Referenzen aus ' + years + ' Jahren Gerüstbau.</h2>' +
-        '<p class="sr__lead">' + nP + ' Projekte in Berlin und Brandenburg, eingerüstet von Neumann. Von Schulen und Kirchen bis zum Olympiastadion.</p></header>' +
+        '<h2 class="sr__title">Unsere aktuellen Baustellen.</h2>' +
+        '<p class="sr__lead">' + nP + ' aktuelle Baustellen in Berlin, eingerüstet von Neumann. Vom Wohnquartier bis zur Alten Försterei.</p></header>' +
       '<div class="sr__wall"></div>' +
       '<div class="sr__end"><p>Ihr Projekt als nächstes?</p><a class="btn btn--light" href="' + (home ? '#kontakt' : 'index.html#kontakt') + '" data-sr-go>Projekt anfragen</a></div>' +
     '</div>' +
@@ -40,7 +40,7 @@ function build() {
   wall.innerHTML = refs.map(function (r, i) {
     return '<button class="sr__t" type="button" data-i="' + i + '" data-k="' + esc(r.k) + '" style="--ar:' + (r.r || 1.333) + '" aria-label="' + esc(r.t) + ', ' + esc(r.k) + ', groß ansehen">' +
       '<img src="' + esc(r.f) + '" alt="' + esc(r.t) + ', eingerüstet von Neumann Gerüstbau" loading="lazy" decoding="async">' +
-      '<span class="sr__cap"><b>' + esc(r.t) + '</b><span class="mono">' + esc(r.k) + '</span></span></button>';
+      '<span class="sr__cap"><b>' + esc(r.t) + '</b><span class="mono">' + esc(r.k) + (r.o ? ' · ' + esc(r.o) : '') + '</span></span></button>';
   }).join('');
   tiles = [].slice.call(wall.querySelectorAll('.sr__t'));
 
@@ -114,7 +114,7 @@ function target(r) {
   return { l: (vw - w) / 2, t: (vh - h) / 2 - (mob ? 10 : 6), w: w, h: h };
 }
 function place(img, R) { img.style.left = R.l + 'px'; img.style.top = R.t + 'px'; img.style.width = R.w + 'px'; img.style.height = R.h + 'px'; }
-function caption(i) { var r = refs[i]; lb.querySelector('.srl__cap').textContent = r.t + ' · ' + r.k + ' · ' + (i + 1) + ' / ' + refs.length; }
+function caption(i) { var r = refs[i]; lb.querySelector('.srl__cap').textContent = r.t + (r.o ? ', ' + r.o : '') + ' · ' + r.k + ' · ' + (i + 1) + ' / ' + refs.length; }
 function lbOpen(i) {
   cur = i; var r = refs[i], img = lb.querySelector('.srl__img'), tile = tiles[i], tr = tile.querySelector('img').getBoundingClientRect(), R = target(r.r || 1.333);
   img.src = r.f; img.alt = r.t + ', eingerüstet von Neumann Gerüstbau'; caption(i); place(img, R);

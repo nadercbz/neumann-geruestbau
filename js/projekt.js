@@ -1,4 +1,4 @@
-/* Ihr Projekt: Gerüst Rechner, Foto Vorschau (vier Eckpunkte, perspektivisch) und Baustellen Karte Berlin.
+/* Ihr Projekt: Foto Vorschau (vier Eckpunkte, perspektivisch) und Baustellen Karte Berlin.
    Alles läuft im Browser, kein Server, Fotos verlassen das Gerät nicht. */
 (function () {
 'use strict';
@@ -6,52 +6,6 @@ var $ = function (s, r) { return (r || document).querySelector(s); };
 var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
 var fmt = function (n, d) { return n.toLocaleString('de-DE', { maximumFractionDigits: d || 0, minimumFractionDigits: d || 0 }); };
 var BW = 2.57, LH = 2.0, MAIL = 'info@geruestbau-neumann.de';
-
-/* =================== 1) Gerüst Rechner =================== */
-var R = { art: $('#r-art'), len: $('#r-len'), hgt: $('#r-hgt'), use: $('#r-use'), wk: $('#r-wk'), out: $('#r-out'), svg: $('#r-svg'), mail: $('#r-mail') };
-var NUTZ = { maler: { lk: 3, b: 0.73, kg: 18, t: 'Maler, Reinigung, leichte Arbeiten' }, putz: { lk: 4, b: 1.09, kg: 22, t: 'Putz, Dämmung, Fenster' }, maurer: { lk: 5, b: 1.09, kg: 25, t: 'Mauerwerk, Naturstein, schwere Lasten' } };
-function extras() { return Array.prototype.slice.call(document.querySelectorAll('[name=r-x]:checked')).map(function (c) { return c.value; }); }
-function calc() {
-  var L = +R.len.value, H = +R.hgt.value, n = NUTZ[R.use.value], wk = +R.wk.value, ex = extras();
-  $('#r-len-v').textContent = fmt(L) + ' m'; $('#r-hgt-v').textContent = fmt(H) + ' m'; $('#r-wk-v').textContent = wk + (wk === 1 ? ' Woche' : ' Wochen');
-  var felder = Math.ceil(L / BW), lagen = Math.ceil(H / LH), flaeche = felder * BW * (lagen * LH + 1.0);
-  var anker = Math.ceil((felder + 1) / 2) * Math.max(1, Math.floor(lagen / 2));
-  var tonnen = flaeche * n.kg / 1000 * (ex.indexOf('netz') >= 0 ? 1.04 : 1) + (ex.indexOf('turm') >= 0 ? lagen * 0.35 : 0) + (ex.indexOf('dach') >= 0 ? felder * 0.12 : 0);
-  var lkw = Math.max(1, Math.ceil(tonnen / 10)), tage = Math.max(1, Math.round(flaeche / 220 * 2) / 2);
-  R.out.innerHTML = [
-    ['Gerüstfläche', fmt(flaeche) + ' m²', 'Länge × (Höhe + 1 m Seitenschutz)'],
-    ['Felder × Lagen', felder + ' × ' + lagen, 'Feld 2,57 m, Lage 2,0 m'],
-    ['Lastklasse', 'LK ' + n.lk + ' · ' + fmt(n.b, 2).replace(',00', '') + ' m', n.t],
-    ['Verankerungen', 'ca. ' + anker, 'alle 2 Felder, jede 2. Lage'],
-    ['Material', 'ca. ' + fmt(tonnen, 1) + ' t', 'entspricht etwa ' + lkw + (lkw === 1 ? ' LKW Ladung' : ' LKW Ladungen')],
-    ['Aufbau', 'ca. ' + fmt(tage, 1) + (tage === 1 ? ' Tag' : ' Tage'), 'mit einer Kolonne, Richtwert'],
-  ].map(function (r) { return '<div><dt class="mono">' + r[0] + '</dt><dd>' + r[1] + '</dd><small>' + r[2] + '</small></div>'; }).join('');
-  drawElevation(felder, lagen, ex);
-  var body = 'Guten Tag,%0D%0A%0D%0Aich interessiere mich für ein Gerüst:%0D%0A' +
-    encodeURIComponent('- Art: ' + R.art.options[R.art.selectedIndex].text + '\n- Fassadenlänge: ' + L + ' m\n- Höhe: ' + H + ' m\n- Nutzung: ' + n.t + ' (LK ' + n.lk + ')\n- Standzeit: ' + wk + ' Wochen\n- Extras: ' + (ex.length ? ex.map(function (e) { return { netz: 'Netz/Plane', dach: 'Schutzdach Gehweg', turm: 'Treppenturm', aufzug: 'Bauaufzug' }[e]; }).join(', ') : 'keine') + '\n- Gerüstfläche laut Rechner: ca. ' + fmt(flaeche) + ' m²\n\nAdresse der Baustelle:\nWunschtermin:\n');
-  R.mail.href = 'mailto:' + MAIL + '?subject=' + encodeURIComponent('Anfrage Gerüst, ca. ' + fmt(flaeche) + ' m²') + '&body=' + body;
-}
-function drawElevation(felder, lagen, ex) {
-  var showF = Math.min(felder, 24), w = 600, h = 300, pad = 18;
-  var s = Math.min((w - 2 * pad) / (showF * BW), (h - 2 * pad) / (lagen * LH + 1.6));
-  var x0 = (w - showF * BW * s) / 2, yb = h - pad, out = [];
-  out.push('<rect x="' + (x0 - 6) + '" y="' + (yb - (lagen * LH + 1.4) * s) + '" width="' + (showF * BW * s + 12) + '" height="' + ((lagen * LH + 1.4) * s) + '" fill="rgba(255,255,255,.035)"/>');
-  for (var l = 1; l <= lagen; l++) {
-    var y = yb - l * LH * s;
-    out.push('<line x1="' + x0 + '" y1="' + y + '" x2="' + (x0 + showF * BW * s) + '" y2="' + y + '" class="e-deck"/>');
-    out.push('<line x1="' + x0 + '" y1="' + (y - 1.0 * s) + '" x2="' + (x0 + showF * BW * s) + '" y2="' + (y - 1.0 * s) + '" class="e-rail"/>');
-    for (var i = 0; i < showF; i += 3) { var up = l % 2; out.push('<line x1="' + (x0 + i * BW * s) + '" y1="' + (up ? y + LH * s : y) + '" x2="' + (x0 + (i + 1) * BW * s) + '" y2="' + (up ? y : y + LH * s) + '" class="e-diag"/>'); }
-  }
-  for (var j = 0; j <= showF; j++) out.push('<line x1="' + (x0 + j * BW * s) + '" y1="' + yb + '" x2="' + (x0 + j * BW * s) + '" y2="' + (yb - (lagen * LH + 1) * s) + '" class="e-std"/>');
-  if (ex.indexOf('netz') >= 0) out.push('<rect x="' + x0 + '" y="' + (yb - (lagen * LH + 1) * s) + '" width="' + showF * BW * s + '" height="' + (lagen * LH + 1) * s + '" class="e-net"/>');
-  if (ex.indexOf('turm') >= 0) { var tx = x0 - 1.6 * s; for (var t = 0; t < lagen; t++) out.push('<line x1="' + tx + '" y1="' + (yb - t * LH * s) + '" x2="' + (tx + 1.4 * s) + '" y2="' + (yb - (t + 1) * LH * s) + '" class="e-diag"/>'); out.push('<rect x="' + tx + '" y="' + (yb - lagen * LH * s) + '" width="' + 1.4 * s + '" height="' + lagen * LH * s + '" class="e-tower"/>'); }
-  if (ex.indexOf('dach') >= 0) out.push('<line x1="' + (x0 - 0.8 * s) + '" y1="' + (yb - 2.6 * s) + '" x2="' + (x0 + showF * BW * s + 0.8 * s) + '" y2="' + (yb - 2.6 * s) + '" class="e-roof"/>');
-  out.push('<line x1="0" y1="' + yb + '" x2="' + w + '" y2="' + yb + '" class="e-ground"/>');
-  if (felder > showF) out.push('<text x="' + (w - pad) + '" y="' + (pad + 4) + '" text-anchor="end" class="e-txt">Ausschnitt: ' + showF + ' von ' + felder + ' Feldern</text>');
-  R.svg.innerHTML = out.join('');
-}
-['input', 'change'].forEach(function (ev) { $('#rechner').addEventListener(ev, calc); });
-calc();
 
 /* =================== 2) Foto Vorschau =================== */
 var F = { wrap: $('#f-stage'), cv: $('#f-canvas'), file: $('#f-file'), w: $('#f-w'), h: $('#f-h'), net: $('#f-net'), dl: $('#f-dl'), hint: $('#f-hint') };
@@ -157,15 +111,21 @@ F.dl.addEventListener('click', function () { if (!img) return; F.cv.toBlob(funct
 var KARTE = window.NEUMANN_KARTE, REFS = window.NEUMANN_REFS || [];
 // ungefähre Lage der Referenzprojekte (Bezirk/Straße), nur zur Orientierung
 var LAGE = {
-  'FA Wedding': [52.557, 13.377], 'Olympiastadion': [52.5147, 13.2395], 'Landesbibliothek, Breite Str.': [52.5142, 13.401], 'TIB TU Berlin': [52.5443, 13.387],
-  'Amtsgericht Schöneberg': [52.493, 13.351], 'Studentenwerk Franz-Mehring-Platz': [52.5105, 13.443], 'FA Reinickendorf': [52.572, 13.319], 'Hamburger Bahnhof': [52.5284, 13.3721],
-  'Bundesarchiv': [52.429, 13.303], 'Bahnhof Ostkreuz': [52.503, 13.469], 'Europacenter': [52.5043, 13.3376], 'HELIOS Klinik Buch': [52.629, 13.504], 'Messe Berlin – ICC': [52.505, 13.279],
-  'Science Center Medizintechnik Berlin': [52.51, 13.378], 'Zoofenster': [52.5055, 13.3335], 'Kirche St. Bonifatius': [52.493, 13.388], 'St. Marienkirche Strausberg': [52.578, 13.883],
-  'Stadtkirche Altlandsberg': [52.564, 13.733], 'Gymnasium Dunckerstr.3': [52.544, 13.422], 'HU Berlin, Dorotheenstr. 1': [52.5195, 13.392], 'Gymnasium Görschstr.': [52.57, 13.41],
-  'GS Rheingaustr. 3': [52.473, 13.327], 'Elisabeth-Christinen Grundschule': [52.583, 13.405], '5. Grundschule Atzpodienstr.': [52.514, 13.487], 'Konzerthaus Berlin': [52.5137, 13.392],
-  'Jüdisches Museum': [52.502, 13.395], 'IFA – Messe Berlin': [52.5065, 13.273], 'ILA – Messe Berlin': [52.38, 13.51], 'Classic Open Air': [52.5132, 13.3935], 'Alt-Köpenick 20': [52.445, 13.576],
-  'Finowstr. 29': [52.508, 13.468], 'Lichtenrader Damm 52 a-c': [52.404, 13.399], 'Möckernstr. 73': [52.496, 13.382], 'Rosenthaler Str.': [52.526, 13.402], 'Kollwitzstr. 14': [52.534, 13.417],
-  'Schillerstr. 12-15': [52.507, 13.308], 'Stadtvillen Berlin-Kladow': [52.455, 13.145], 'Wutzkyallee': [52.423, 13.469]
+  'Allee der Kosmonauten': [52.5258, 13.5208],
+  'Alte Försterei Union': [52.45898, 13.57092],
+  'Am Werkstor': [52.4569, 13.5146],
+  'An der Mole': [52.49989, 13.46908],
+  'Behrens Ufer': [52.4563, 13.533],
+  'Friedenauer Höhe': [52.4774, 13.341],
+  'Grafenauer Weg': [52.4887, 13.5372],
+  'HTW Berlin': [52.4572, 13.5269],
+  'Marienpark': [52.4387, 13.3695],
+  'Schreiberhauer Straße': [52.5041, 13.4742],
+  'Schwarze-Pumpe-Weg': [52.548, 13.5349],
+  'Siemens AG': [52.5398, 13.2569],
+  'Unter den Linden': [52.517, 13.389],
+  'Walkürenstraße': [52.4894, 13.513],
+  'Wilkestraße': [52.5894, 13.2747]
 };
 var projects = {};
 REFS.forEach(function (r) {
@@ -195,5 +155,5 @@ function openP(i) {
 }
 svg.addEventListener('click', function (e) { var g = e.target.closest('.m-pt'); if (g) openP(+g.dataset.i); });
 svg.addEventListener('keydown', function (e) { var g = e.target.closest('.m-pt'); if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openP(+g.dataset.i); } });
-if (P.length) openP(P.findIndex(function (p) { return p.t === 'Olympiastadion'; }) >= 0 ? P.findIndex(function (p) { return p.t === 'Olympiastadion'; }) : 0);
+if (P.length) openP(P.findIndex(function (p) { return p.t === 'Alte Försterei Union'; }) >= 0 ? P.findIndex(function (p) { return p.t === 'Alte Försterei Union'; }) : 0);
 })();

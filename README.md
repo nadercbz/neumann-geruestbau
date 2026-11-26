@@ -3,6 +3,15 @@
 Vorschau der neuen Website für die Neumann Gerüstbau GmbH, Berlin.
 Statische Seite ohne Build: HTML, CSS, JavaScript. Die Scroll-Animation besteht aus 121 Einzelbildern in `assets/frames`.
 
+## Version 14: Korrekturen des Kunden (26.11.2026)
+- Quelle: `/Volumes/AI AGENT/TRANSFER/Neumann Baugerüst/Neumann.pages` plus Ordner `Baustellen/` (18 aktuelle Baustellen, je eine Ansicht gewählt).
+- CI Gelb statt Blau auf allen Seiten: `--blue` heißt weiter so, ist aber `#FACE00`, auf gelben Flächen dunkle Schrift (`--on-blue`, Override Blöcke am Ende von `style.css` und `unterseiten.css`). Auch Drahtmodell und Logo Skulptur (`scene3d.js`), Konfigurator (Stiel, Hervorhebung, Filmschilder), Favicon.
+- Nur noch die neuen Fotos: `js/data.js` hat 18 Baustellen (`assets/img/ref/baustelle_*.webp`, Kategorien Wohnungsbau, Gewerbe, Öffentliche Bauten, Sport, Ortsteil im Feld `o`). Referenzen, Showroom, Leistungen Hover, Koordinaten Bild und Karte (15 Baustellen, Berliner Straße, Charité und Klosterstraße ohne genaue Lage) nutzen nur diese. Alte Referenzbilder liegen noch im Ordner, werden aber nicht mehr verwendet.
+- Claim „Einer der größten Anbieter für Gerüstbau in Berlin“ im Hero, in der Beschreibung und im Unternehmen. Hinweis „Wir stellen ein“ im Hero und Punkt an Karriere im Menü. Karriere neu für jüngere Leute (du Form, Schlagworte, Instagram Link). Instagram auch im Fuß.
+- Raus: Satz zu Subunternehmern, Leistung Containertransporte (Liste, Formular, Beschreibung, Imagefilm).
+- Statt Preisrechner jetzt „Gerüstbau interaktiv“ auf `projekt.html#planer` (alter Link `#rechner` springt mit): Haus in 3D zusammenstellen (Altbau, Neubau, Gewerbe, Breite, Geschosse, Deckenhöhe, Fassade Putz, Klinker, Naturstein, Glas, Fenster, Balkone und Haustüren mit Platzierung, Untergrund, Gelände, Gerüstebenen, Netz), das Gerüst baut sich davor auf. Nur zur Veranschaulichung, keine Berechnung. Code `js/planer.js` (three.js), Link teilen per `#planer=...`, Anfrage als fertige Mail.
+- Filme: Imagefilm in Gelb, ohne Containertransporte, Karten mit den neuen Baustellenfotos (`../11_Imagefilm`, Stimme `stimme_v5.mp3`, alte Fassung in `archiv_v3_blau/`). Erklärfilm mit gelben Titelkarten und gelbem Konfigurator neu aufgenommen.
+
 ## Version 13: Showroom mit allen Referenzen (22.11.2026)
 - Knopf „Showroom“ oben rechts auf Startseite, Gerüstarten, Ihr Projekt und Sicherheit (vor „Anfrage“, am Handy neben „Menü“). Öffnet ein Glas Overlay: die Seite dahinter wird weich gezeichnet und abgedunkelt, darüber alle 56 Referenzfotos aus 51 Projekten als Kachelwand mit Filter nach Kategorie, Großansicht mit Blättern (Pfeile, Pfeiltasten, Wischen), Escape schließt, Direktlink `#showroom`, Zurück Taste schließt.
 - Vorbild: Showroom von Social Bites. Code in `js/showroom.js` (eigenständig, lädt `js/data.js` nach, wenn die Seite es nicht hat), Stil in `style.css` unter „Showroom“. Seitenverhältnis der Fotos steht in `js/data.js` (Feld `r`).

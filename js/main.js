@@ -216,7 +216,7 @@ $$('#svc li').forEach(function(li){
 
 /* ---------- Referenzen ---------- */
 var refs=window.NEUMANN_REFS||[], tabs=$('#tabs'), grid=$('#grid'), cats=['Highlights'], lb=$('#lightbox');
-var HI=['Olympiastadion','Bahnhof Ostkreuz','Zoofenster','Konzerthaus Berlin','Jüdisches Museum','Hamburger Bahnhof','Europacenter','Kirche St. Bonifatius'];
+var HI=['Alte Försterei Union','Friedenauer Höhe','Siemens AG','Unter den Linden','Charité','An der Mole','HTW Berlin','Wilkestraße'];
 refs.forEach(function(r){if(cats.indexOf(r.k)<0)cats.push(r.k)});
 function list(c){if(c!=='Highlights')return refs.filter(function(r){return r.k===c});return HI.map(function(t){return refs.filter(function(r){return r.t===t})[0]}).filter(Boolean)}
 function show(c){
